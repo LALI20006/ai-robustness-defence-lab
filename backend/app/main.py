@@ -1,7 +1,8 @@
 import os
 import logging
 from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.config import settings
 from backend.app.database import engine, Base
@@ -68,17 +69,6 @@ app.include_router(reports_router)
 app.include_router(dashboard_router)
 app.include_router(demo_router)
 
-@app.get("/")
-def read_root():
-    return {
-        "framework": settings.PROJECT_NAME,
-        "short_name": settings.SHORT_NAME,
-        "status": "online",
-        "scope": "Defensive machine-learning cybersecurity evaluation only",
-        "health": "/health",
-        "docs": "/docs"
-    }
-
 # Standard deployment health check endpoint
 @app.get("/health")
 def health():
@@ -89,3 +79,61 @@ def health():
 def api_health():
     """API-namespaced health check"""
     return {"status": "healthy"}
+
+# Determine frontend distribution path for unified single-link serving
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+frontend_dist = os.path.join(PROJECT_ROOT, "frontend", "dist")
+
+if os.path.exists(frontend_dist):
+    assets_dir = os.path.join(frontend_dist, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/favicon.svg")
+    def favicon():
+        fav_path = os.path.join(frontend_dist, "favicon.svg")
+        if os.path.exists(fav_path):
+            return FileResponse(fav_path)
+        return JSONResponse(status_code=404, content={"detail": "Not found"})
+
+    @app.get("/icons.svg")
+    def icons():
+        icons_path = os.path.join(frontend_dist, "icons.svg")
+        if os.path.exists(icons_path):
+            return FileResponse(icons_path)
+        return JSONResponse(status_code=404, content={"detail": "Not found"})
+
+    @app.get("/")
+    def read_root():
+        index_file = os.path.join(frontend_dist, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+        return {
+            "framework": settings.PROJECT_NAME,
+            "short_name": settings.SHORT_NAME,
+            "status": "online",
+            "scope": "Defensive machine-learning cybersecurity evaluation only",
+            "health": "/health",
+            "docs": "/docs"
+        }
+
+    # SPA catch-all fallback for client-side routing (/dashboard, /models, /robustness, etc.)
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        if full_path.startswith("api/") or full_path.startswith("docs") or full_path.startswith("openapi.json"):
+            return JSONResponse(status_code=404, content={"detail": "API endpoint not found"})
+        index_file = os.path.join(frontend_dist, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+        return JSONResponse(status_code=404, content={"detail": "Frontend bundle not found"})
+else:
+    @app.get("/")
+    def read_root():
+        return {
+            "framework": settings.PROJECT_NAME,
+            "short_name": settings.SHORT_NAME,
+            "status": "online",
+            "scope": "Defensive machine-learning cybersecurity evaluation only",
+            "health": "/health",
+            "docs": "/docs"
+        }

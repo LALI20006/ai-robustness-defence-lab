@@ -1,33 +1,21 @@
 version: '3.8'
 
 services:
-  backend:
+  app:
     build:
       context: .
-      dockerfile: Dockerfile.backend
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     environment:
       - ENVIRONMENT=production
       - DATABASE_URL=sqlite:///./app.db
       - JWT_SECRET_KEY=production-secure-random-token-secret-change-me
-      - FRONTEND_URL=http://localhost:3000
+      - MAX_UPLOAD_MB=50
     volumes:
       - app_data:/app/data
       - app_models:/app/models/saved_models
       - app_reports:/app/reports
-    restart: unless-stopped
-
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-      args:
-        - VITE_API_BASE_URL=http://localhost:8000
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
     restart: unless-stopped
 
 volumes:
