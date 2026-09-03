@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Lock, User, AlertCircle, ArrowRight, Sparkles } from 'lucide-react';
+import { Shield, Lock, User, AlertCircle, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
@@ -24,11 +24,6 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDemoFill = () => {
-    setUsernameOrEmail('researcher');
-    setPassword('DemoPassword123!');
   };
 
   return (
@@ -105,18 +100,6 @@ export default function LoginPage() {
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </form>
-
-          {/* Quick Demo Credentials helper */}
-          <div className="pt-2 border-t border-slate-800/80">
-            <button
-              type="button"
-              onClick={handleDemoFill}
-              className="w-full py-2 px-3 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-cyan-400 hover:border-cyan-500/40 transition-colors flex items-center justify-center space-x-1.5 cursor-pointer font-mono"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Fill Demo Credentials (researcher)</span>
-            </button>
-          </div>
         </div>
 
         {/* Footer Link */}
