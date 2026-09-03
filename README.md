@@ -15,7 +15,7 @@
 
 The **Adversarial Robustness Evaluation & Defence Framework** is an interactive, academic-grade cybersecurity laboratory designed to evaluate, challenge, and defensively harden machine-learning classifiers applied to malware detection and network intrusion detection (IDS).
 
-Modern AI security classifiers often achieve high accuracy on clean validation data but can suffer acute performance degradation when exposed to subtle distribution shifts or bounded feature-space perturbations. This platform provides an offline, scientifically grounded environment where practitioners and students can:
+Modern AI security classifiers often achieve high accuracy on clean validation data but suffer acute performance degradation when exposed to subtle distribution shifts or bounded feature-space perturbations. This platform provides an offline, scientifically grounded environment where practitioners and students can:
 
 1. Ingest, inspect, and preprocess structured cybersecurity tabular datasets.
 2. Train baseline classifiers (Random Forest, Gradient Boosting, SVM, Logistic Regression, Decision Tree, KNN, MLP).
@@ -26,7 +26,7 @@ Modern AI security classifiers often achieve high accuracy on clean validation d
 
 ---
 
-## 2. Important Safety Boundaries & Ethics Statement
+## 2. Safety Boundaries & Ethics Statement
 
 > [!IMPORTANT]
 > **Strict Defensive Scope:** This platform is engineered solely for defensive cybersecurity research, academic education, and offline model benchmarking.
@@ -42,134 +42,129 @@ Modern AI security classifiers often achieve high accuracy on clean validation d
 
 ---
 
-## 3. Key Architecture & Features
+## 3. Deployment Architecture
 
 ```
-project-root/
-│
-├── backend/                  # FastAPI Application
-│   ├── app/
-│   │   ├── config.py         # Pydantic Settings & Environment
-│   │   ├── database.py       # SQLAlchemy ORM engine & sessions
-│   │   ├── main.py           # FastAPI application entrypoint & routers
-│   │   ├── models/           # SQLAlchemy DB Models (User, Dataset, Model, Exp, Report)
-│   │   ├── schemas/          # Pydantic Data Validation Schemas
-│   │   ├── routes/           # REST API endpoints (Auth, Datasets, ML, Robustness, Defences)
-│   │   ├── security/         # Direct bcrypt hashing & JWT tokens
-│   │   ├── ml/
-│   │   │   ├── preprocessing/ # Leak-free preprocessor with bound tracking
-│   │   │   ├── training/     # Model Factory for 7+ classifiers
-│   │   │   ├── evaluation/   # Standardized metrics & ROC curves
-│   │   │   ├── robustness/   # Controlled perturbations & sensitivity ranking
-│   │   │   └── defenses/     # Adversarial training, input validation, ensembles
-│   │   └── services/         # ReportLab PDF generator & Demo pipeline
-│   ├── scripts/              # Sample dataset generators
-│   └── tests/                # Automated pytest test suite
-│
-├── frontend/                 # React 19 + Vite + Tailwind CSS
-│   ├── src/
-│   │   ├── components/       # Metric cards, Confusion Matrix, Navbar, Sidebar
-│   │   ├── context/          # JWT Auth Context & persistence
-│   │   ├── pages/            # 13 dedicated lab pages
-│   │   └── services/         # Axios REST API client
-│   └── vite.config.js        # Vite + Tailwind + Proxy configuration
-│
-├── data/
-│   ├── sample/               # Bundled NSL-KDD & PE Malware tabular samples
-│   ├── uploads/              # Ingested user CSV files
-│   └── processed/            # Preprocessed arrays and pipelines
-├── models/saved_models/      # Serialized joblib model artifacts
-├── reports/                  # Generated PDF and HTML reports
-└── logs/                     # System logs
+                    ┌──────────────────────────────────────────────┐
+                    │               Vercel Frontend                │
+                    │         (React 19 + Vite SPA + Tailwind)     │
+                    │        https://your-app.vercel.app           │
+                    └──────────────────────┬───────────────────────┘
+                                           │ HTTPS + JWT Bearer
+                                           │ (VITE_API_BASE_URL)
+                    ┌──────────────────────▼───────────────────────┐
+                    │                Render Backend                │
+                    │           (FastAPI + Uvicorn + ML)           │
+                    │     https://your-backend.onrender.com        │
+                    └───────────────┬──────────────┬───────────────┘
+                                    │              │
+                    ┌───────────────▼──────┐ ┌─────▼───────────────┐
+                    │ PostgreSQL Database  │ │ Bundled Datasets    │
+                    │ (Render/Neon/SQLite) │ │ (data/sample/)      │
+                    └──────────────────────┘ └─────────────────────┘
 ```
 
 ---
 
-## 4. Supported Classifiers & Techniques
+## 4. Production Deployment Guide
 
-### Supported Model Architectures
-* **Random Forest Classifier** (`random_forest`): High stability bagging ensemble.
-* **Gradient Boosting** (`gradient_boosting`): Residual minimization ensemble.
-* **Support Vector Machine** (`svm`): Maximum-margin hyperplane with calibrated probability scores.
-* **Logistic Regression** (`logistic_regression`): Linear decision boundary with L2 regularization.
-* **Decision Tree** (`decision_tree`): Orthogonal hierarchical partitioning.
-* **K-Nearest Neighbors** (`knn`): Distance-based metric classification.
-* **Multi-Layer Perceptron** (`mlp`): Neural network with backpropagation.
+### A. Deploy Backend to Render
 
-### Controlled Perturbation Methods
-* **Epsilon-Bounded Perturbation:** Continuous shift scaled by observed feature range $\pm\epsilon \cdot \text{range}(x)$, strictly clipped to $[x_{min}, x_{max}]$.
-* **Random Noise:** Uniform random feature perturbation within configurable bounds.
-* **Gaussian Noise:** Controlled normal perturbation scaled to individual feature standard deviation.
-* **Feature Masking:** Randomly replaces $k$ features per sample with column median, mean, or valid zero.
-* **Feature Dropout Sensitivity:** Systematically neutralizes features one-by-one to rank vulnerability impact.
+1. **Push your repository to GitHub**:
+   ```bash
+   git remote add origin https://github.com/YOUR_USERNAME/ai-robustness-defence-lab.git
+   git branch -M main
+   git push -u origin main
+   ```
 
-### Defensive Hardening Techniques
-* **Adversarial Training:** Data augmentation injecting bounded feature perturbations into the training set ($X_{train} \cup X_{adv}$) followed by model retraining.
-* **Input Validation Guard:** Range checking, NaN/Inf detection, non-negativity enforcement, and statistical outlier filtering (IQR & Z-score $> 4\sigma$) categorizing inputs into `VALID`, `WARNING`, or `REJECTED`.
-* **Voting Ensemble:** Aggregates predictions across multiple classifiers (soft probability or hard majority voting) to reduce variance.
+2. **Create a Web Service on Render**:
+   - Go to [dashboard.render.com](https://dashboard.render.com) and click **New + > Web Service**.
+   - Connect your GitHub repository.
+   - Configure the following settings:
+     - **Name:** `ai-robustness-defence-backend`
+     - **Runtime:** `Python 3`
+     - **Build Command:** `pip install --upgrade pip && pip install -r backend/requirements.txt`
+     - **Start Command:** `uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT`
+     - **Health Check Path:** `/health`
+   
+3. **Set Backend Environment Variables in Render**:
+   | Variable | Value | Description |
+   |---|---|---|
+   | `ENVIRONMENT` | `production` | Enables production mode |
+   | `DATABASE_URL` | `sqlite:///./app.db` or PostgreSQL URL | Database connection string |
+   | `JWT_SECRET_KEY` | *(Click "Generate" or enter secure random string)* | Token signing secret |
+   | `ACCESS_TOKEN_EXPIRE_MINUTES` | `1440` | 24-hour token validity |
+   | `FRONTEND_URL` | `https://your-frontend-domain.vercel.app` | Allowed CORS origin |
+   | `MAX_UPLOAD_MB` | `50` | Maximum file upload size |
+
+4. **Verify Backend Deployment**:
+   - Visit `https://your-backend.onrender.com/health` (should return `{"status": "ok"}`).
+   - Visit `https://your-backend.onrender.com/docs` to view the interactive OpenAPI documentation.
 
 ---
 
-## 5. Getting Started & Installation
+### B. Deploy Frontend to Vercel
+
+1. **Import Project to Vercel**:
+   - Go to [vercel.com](https://vercel.com) and click **Add New > Project**.
+   - Select your GitHub repository.
+   - Set **Root Directory** to `frontend`.
+   - Vercel will automatically detect **Vite** as the framework.
+
+2. **Set Frontend Environment Variables in Vercel**:
+   | Variable | Value |
+   |---|---|
+   | `VITE_API_BASE_URL` | `https://your-backend.onrender.com` |
+
+3. **Deploy**:
+   - Click **Deploy**. Vercel will build the frontend and deploy to `https://your-app.vercel.app`.
+   - The included `frontend/vercel.json` ensures that deep routing (`/dashboard`, `/models`, etc.) rewrites to `/index.html` without 404 errors.
+
+4. **Update Backend CORS in Render**:
+   - Once your Vercel URL is known (e.g. `https://ai-robustness-lab.vercel.app`), go back to your Render backend dashboard > Environment and update:
+     `FRONTEND_URL=https://ai-robustness-lab.vercel.app`
+
+---
+
+## 5. Local Development Setup
 
 ### Prerequisites
 * Python 3.11, 3.12, 3.13, or 3.14
 * Node.js v18+ and npm v9+
 
-### Step 1: Clone or Navigate to Directory
+### Backend Setup
 ```bash
-cd "c:\Users\mrhar\Desktop\PCL PROJECT"
-```
-
-### Step 2: Set Up Backend Virtual Environment
-```bash
-# Windows
+# 1. Activate Python virtual environment
 python -m venv venv
-venv\Scripts\activate
+.\venv\Scripts\activate       # Windows
+# source venv/bin/activate    # Linux/macOS
 
-# Install dependencies
+# 2. Install dependencies
 pip install -r backend/requirements.txt
-```
 
-### Step 3: Initialize Environment & Sample Datasets
-```bash
-# Generate bundled sample cybersecurity datasets (NSL-KDD & PE Malware)
+# 3. Initialize sample datasets (NSL-KDD & PE Malware)
 python backend/scripts/generate_sample_data.py
-```
 
-### Step 4: Set Up Frontend
+# 4. Start FastAPI server
+uvicorn backend.app.main:app --reload --port 8000
+```
+Backend API will run at `http://127.0.0.1:8000`.
+
+### Frontend Setup
 ```bash
 cd frontend
 npm install
-cd ..
-```
-
----
-
-## 6. Running the Application
-
-### Option A: Run Backend Server
-In your activated terminal:
-```bash
-venv\Scripts\python -m uvicorn backend.app.main:app --reload --port 8000
-```
-Backend API will be live at `http://127.0.0.1:8000`. Interactive Swagger API docs are accessible at `http://127.0.0.1:8000/docs`.
-
-### Option B: Run Frontend Development Server
-In a second terminal:
-```bash
-cd frontend
 npm run dev
 ```
-Frontend application will be accessible at `http://localhost:5173`.
+Frontend Web UI will run at `http://localhost:5173`.
 
 ---
 
-## 7. The One-Click Academic Demo Workflow
+## 6. One-Click Academic Demo Workflow
 
 For college project reviews or thesis demonstrations, use the built-in **Run Demo Experiment** button:
 
-1. Open the application at `http://localhost:5173`.
+1. Open the web interface (`http://localhost:5173` or your deployed Vercel URL).
 2. Sign in with the demo account:
    * **Username:** `researcher`
    * **Password:** `DemoPassword123!`
@@ -179,34 +174,38 @@ For college project reviews or thesis demonstrations, use the built-in **Run Dem
    * Loading the bundled NSL-KDD intrusion detection dataset.
    * Applying zero-leakage stratified preprocessing (80/20 train/test split, standard scaling, one-hot encoding).
    * Training a Random Forest baseline classifier.
-   * Measuring clean test performance (e.g. ~95.4% accuracy).
+   * Measuring clean test performance (~95.4% accuracy).
    * Executing a 5% bounded feature perturbation test.
-   * Computing Attack Success Rate (ASR) and accuracy drop (e.g. drop to ~78.8%).
+   * Computing Attack Success Rate (ASR) and accuracy drop (drop to ~78.8%).
    * Synthesizing an augmented training set and retraining the hardened model.
-   * Measuring defended robust accuracy (e.g. recovery to ~88.7%).
+   * Measuring defended robust accuracy (recovery to ~88.7%).
    * Storing the experiment in SQLite and redirecting to visual analytics.
 5. Navigate to **Reports** and click **Download** to inspect the auto-generated ReportLab PDF evaluation report.
 
 ---
 
-## 8. Automated Testing
+## 7. Automated Testing Suite
 
-Run the comprehensive pytest suite:
+Run the full pytest suite:
 ```bash
 venv\Scripts\pytest backend/tests -v
 ```
-All tests verify:
-* API health and root endpoint compliance.
-* User registration, password hashing, and JWT token authorization.
-* Full end-to-end ML training, perturbation, and defense pipeline.
-* Database session persistence and dashboard telemetry.
-* ReportLab PDF report compilation on disk.
+Verified test coverage:
+* `test_root_and_health`: Validates root endpoint and `/health` unauthenticated probe.
+* `test_auth_flow`: Verifies user registration, bcrypt hashing, and JWT token issuance.
+* `test_demo_pipeline_e2e`: Executes complete end-to-end ML training, perturbation, and defense pipeline.
+* `test_dashboard_summary`: Validates database telemetry aggregation.
+* `test_report_generation`: Confirms publication-grade ReportLab PDF compilation on disk.
 
 ---
 
-## 9. Future Scope & Extensibility
+## 8. Troubleshooting & FAQ
 
-* **Deep Learning Classifiers:** Integration with PyTorch tabular transformers and deep belief networks.
-* **Explainable AI (XAI):** Integration with SHAP and LIME for feature attribution explanation.
-* **Continuous Integration (MLSecOps):** Automated robustness regression testing before deployment.
-* **PostgreSQL Production Deployment:** Switch database URI in `.env` to PostgreSQL with connection pooling.
+| Problem | Cause | Solution |
+|---|---|---|
+| **CORS error in browser** | `FRONTEND_URL` on Render does not match Vercel URL | Set `FRONTEND_URL` in Render environment to match your exact Vercel domain (without trailing slash). |
+| **404 on page refresh** | SPA routing not configured on static host | Ensure `frontend/vercel.json` with rewrites to `/index.html` is present in the repository root. |
+| **Backend 502 / Spin-down** | Render free tier enters sleep mode after 15 min | First request takes ~30-50s to spin up. Subsequent requests respond in milliseconds. |
+| **Database connection error** | PostgreSQL URL prefix format | SQLAlchemy requires `postgresql://`, but Render default provides `postgres://`. The application automatically converts this in `backend/app/config.py`. |
+| **Parquet upload fails** | Missing parser library | `pyarrow>=15.0.0` is included in `backend/requirements.txt` to support Parquet, TSV, and CSV. |
+| **Local disk wipe on cloud restart** | Ephemeral container storage | Bundled benchmark datasets are committed in `data/sample/` so core features and demo mode remain permanent. For multi-tenant persistent storage, configure AWS S3 or Supabase Storage. |
