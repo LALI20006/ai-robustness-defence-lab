@@ -1,7 +1,33 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Lock, User, Mail, AlertCircle, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Shield, Lock, User, Mail, AlertCircle, ArrowRight } from 'lucide-react';
+
+const extractErrorMessage = (err, fallback) => {
+  if (!err) return fallback;
+  if (err.response?.data?.detail) {
+    if (typeof err.response.data.detail === 'string') {
+      return err.response.data.detail;
+    }
+    if (Array.isArray(err.response.data.detail)) {
+      const msgs = err.response.data.detail
+        .map((d) => d.msg || d.message || JSON.stringify(d))
+        .filter(Boolean);
+      if (msgs.length > 0) return msgs.join('. ');
+    }
+    return JSON.stringify(err.response.data.detail);
+  }
+  if (typeof err.response?.data?.message === 'string') {
+    return err.response.data.message;
+  }
+  if (err.response?.status === 502 || err.response?.status === 504) {
+    return 'Backend server gateway timeout. Please ensure Uvicorn is running on port 8000.';
+  }
+  if (err.code === 'ERR_NETWORK' || err.message === 'Network Error' || !err.response) {
+    return 'Cannot connect to backend server. Please ensure the API server is running on http://127.0.0.1:8000.';
+  }
+  return fallback;
+};
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState('');
@@ -18,6 +44,24 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
 
+    const cleanFullName = fullName.trim();
+    const cleanUsername = username.trim();
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (cleanFullName.length < 2) {
+      setError('Full name must be at least 2 characters in length');
+      return;
+    }
+    if (cleanUsername.length < 3) {
+      setError('Username must be at least 3 characters in length');
+      return;
+    }
+    // Strict email check including at least a 2-letter TLD (.com, .edu, etc.)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(cleanEmail)) {
+      setError('Please enter a valid email address with a valid domain (e.g. alex@lab.edu)');
+      return;
+    }
     if (password.length < 8) {
       setError('Password must be at least 8 characters in length');
       return;
@@ -29,10 +73,10 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      await register(fullName, username, email, password, confirmPassword);
+      await register(cleanFullName, cleanUsername, cleanEmail, password, confirmPassword);
       navigate('/login?registered=true');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Registration failed. Please check your information.');
+      setError(extractErrorMessage(err, 'Registration failed. Please check your information.'));
     } finally {
       setLoading(false);
     }
@@ -66,70 +110,95 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-3.5">
             <div className="space-y-1">
               <label className="text-xs font-medium text-slate-300">Full Name</label>
-              <input
-                type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Dr. Alex Rivera"
-                className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900/90 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                  <User className="w-4 h-4" />
+                </div>
+                <input
+                  type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Dr. Alex Rivera"
+                  className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-slate-900/90 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+                />
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-300">Username</label>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-300">Username</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                  <User className="w-4 h-4" />
+                </div>
                 <input
                   type="text"
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="arivera"
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900/90 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+                  className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-slate-900/90 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
                 />
               </div>
+            </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-300">Email Address</label>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-300">Email Address</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                  <Mail className="w-4 h-4" />
+                </div>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="alex@lab.edu"
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900/90 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+                  className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-slate-900/90 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-300">Password (Min. 8 characters)</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900/90 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
-              />
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-slate-300">Password (Min. 8 chars)</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-slate-900/90 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+                  />
+                </div>
+              </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-300">Confirm Password</label>
-              <input
-                type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900/90 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
-              />
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-slate-300">Confirm Password</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-slate-900/90 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+                  />
+                </div>
+              </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold text-xs hover:opacity-90 transition-all shadow-md shadow-cyan-500/20 flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer mt-2"
+              className="w-full py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold text-xs hover:opacity-90 transition-all shadow-md shadow-cyan-500/20 flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer mt-3"
             >
               <span>{loading ? 'Creating Profile...' : 'Complete Registration'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -148,3 +217,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

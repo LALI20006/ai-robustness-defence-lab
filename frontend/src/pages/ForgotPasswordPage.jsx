@@ -3,6 +3,32 @@ import { Link } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import { Shield, Lock, User, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 
+const extractErrorMessage = (err, fallback) => {
+  if (!err) return fallback;
+  if (err.response?.data?.detail) {
+    if (typeof err.response.data.detail === 'string') {
+      return err.response.data.detail;
+    }
+    if (Array.isArray(err.response.data.detail)) {
+      const msgs = err.response.data.detail
+        .map((d) => d.msg || d.message || JSON.stringify(d))
+        .filter(Boolean);
+      if (msgs.length > 0) return msgs.join('. ');
+    }
+    return JSON.stringify(err.response.data.detail);
+  }
+  if (typeof err.response?.data?.message === 'string') {
+    return err.response.data.message;
+  }
+  if (err.response?.status === 502 || err.response?.status === 504) {
+    return 'Backend server gateway timeout. Please ensure Uvicorn is running on port 8000.';
+  }
+  if (err.code === 'ERR_NETWORK' || err.message === 'Network Error' || !err.response) {
+    return 'Cannot connect to backend server. Please ensure the API server is running on http://127.0.0.1:8000.';
+  }
+  return fallback;
+};
+
 export default function ForgotPasswordPage() {
   const [identifier, setIdentifier] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -15,6 +41,12 @@ export default function ForgotPasswordPage() {
     setError('');
     setMessage('');
 
+    const cleanIdentifier = identifier.trim();
+    if (!cleanIdentifier) {
+      setError('Please enter your username or registered email');
+      return;
+    }
+
     if (newPassword.length < 8) {
       setError('Password must be at least 8 characters long');
       return;
@@ -23,12 +55,12 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     try {
       const res = await authAPI.resetPassword({
-        email_or_username: identifier,
+        email_or_username: cleanIdentifier,
         new_password: newPassword,
       });
       setMessage(res.data.message);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to reset password.');
+      setError(extractErrorMessage(err, 'Failed to reset password.'));
     } finally {
       setLoading(false);
     }

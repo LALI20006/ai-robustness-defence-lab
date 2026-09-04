@@ -1,7 +1,33 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Lock, User, AlertCircle, ArrowRight } from 'lucide-react';
+import { Shield, Lock, User, AlertCircle, ArrowRight, CheckCircle2 } from 'lucide-react';
+
+const extractErrorMessage = (err, fallback) => {
+  if (!err) return fallback;
+  if (err.response?.data?.detail) {
+    if (typeof err.response.data.detail === 'string') {
+      return err.response.data.detail;
+    }
+    if (Array.isArray(err.response.data.detail)) {
+      const msgs = err.response.data.detail
+        .map((d) => d.msg || d.message || JSON.stringify(d))
+        .filter(Boolean);
+      if (msgs.length > 0) return msgs.join('. ');
+    }
+    return JSON.stringify(err.response.data.detail);
+  }
+  if (typeof err.response?.data?.message === 'string') {
+    return err.response.data.message;
+  }
+  if (err.response?.status === 502 || err.response?.status === 504) {
+    return 'Backend server gateway timeout. Please ensure Uvicorn is running on port 8000.';
+  }
+  if (err.code === 'ERR_NETWORK' || err.message === 'Network Error' || !err.response) {
+    return 'Cannot connect to backend server. Please ensure the API server is running on http://127.0.0.1:8000.';
+  }
+  return fallback;
+};
 
 export default function LoginPage() {
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
@@ -10,17 +36,25 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const registered = new URLSearchParams(location.search).get('registered') === 'true';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    const cleanId = usernameOrEmail.trim();
+    if (!cleanId) {
+      setError('Please enter your username or email');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await login(usernameOrEmail, password);
+      await login(cleanId, password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Invalid username/email or password');
+      setError(extractErrorMessage(err, 'Invalid username/email or password'));
     } finally {
       setLoading(false);
     }
@@ -44,6 +78,13 @@ export default function LoginPage() {
 
         {/* Card */}
         <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800 shadow-2xl space-y-5">
+          {registered && !error && (
+            <div className="p-3 rounded-lg bg-emerald-950/80 border border-emerald-800 text-emerald-300 text-xs flex items-center space-x-2">
+              <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+              <span>Account registered successfully! Please sign in with your credentials.</span>
+            </div>
+          )}
+
           {error && (
             <div className="p-3 rounded-lg bg-rose-950/80 border border-rose-800 text-rose-300 text-xs flex items-center space-x-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />

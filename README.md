@@ -68,6 +68,12 @@ Modern AI security classifiers often achieve high accuracy on clean validation d
 
 ## 4. Production Deployment Guide
 
+### Key Deliverables Completed:
+0. **Unified Single-Link Deployment Architecture:**
+   - The FastAPI backend directly serves the compiled React 19 SPA distribution (`frontend/dist`) at `/`, manages client-side SPA routing (`/{full_path:path}` fallback), and handles all API traffic at `/api`—enabling the **entire full-stack application to run under ONE single link**.
+   - No separate port, no separate frontend server, and zero CORS misconfiguration issues.
+   - Deployable as a single unified service on Render or in a single Docker container.
+
 ### A. Deploy Backend to Render
 
 1. **Push your repository to GitHub**:

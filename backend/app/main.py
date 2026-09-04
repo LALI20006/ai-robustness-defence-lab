@@ -104,7 +104,18 @@ if os.path.exists(frontend_dist):
         return JSONResponse(status_code=404, content={"detail": "Not found"})
 
     @app.get("/")
-    def read_root():
+    def read_root(request: Request):
+        accept = request.headers.get("accept", "")
+        # If client explicitly asks for JSON, or is not asking for HTML, return JSON metadata
+        if "text/html" not in accept:
+            return {
+                "framework": settings.PROJECT_NAME,
+                "short_name": settings.SHORT_NAME,
+                "status": "online",
+                "scope": "Defensive machine-learning cybersecurity evaluation only",
+                "health": "/health",
+                "docs": "/docs"
+            }
         index_file = os.path.join(frontend_dist, "index.html")
         if os.path.exists(index_file):
             return FileResponse(index_file)

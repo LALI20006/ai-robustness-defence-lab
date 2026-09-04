@@ -13,18 +13,27 @@ def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
     if user_in.password != user_in.confirm_password:
         raise HTTPException(status_code=400, detail="Passwords do not match")
     
-    # Check duplicate username
-    if db.query(User).filter(User.username == user_in.username).first():
+    clean_full_name = user_in.full_name.strip()
+    clean_username = user_in.username.strip()
+    clean_email = user_in.email.strip().lower()
+
+    if len(clean_full_name) < 2:
+        raise HTTPException(status_code=400, detail="Full name must be at least 2 characters")
+    if len(clean_username) < 3:
+        raise HTTPException(status_code=400, detail="Username must be at least 3 characters")
+
+    # Check duplicate username case-insensitively
+    if db.query(User).filter(User.username.ilike(clean_username)).first():
         raise HTTPException(status_code=400, detail="Username is already taken")
 
-    # Check duplicate email
-    if db.query(User).filter(User.email == user_in.email).first():
+    # Check duplicate email case-insensitively
+    if db.query(User).filter(User.email.ilike(clean_email)).first():
         raise HTTPException(status_code=400, detail="Email is already registered")
 
     user = User(
-        full_name=user_in.full_name,
-        username=user_in.username,
-        email=user_in.email,
+        full_name=clean_full_name,
+        username=clean_username,
+        email=clean_email,
         password_hash=hash_password(user_in.password)
     )
     db.add(user)
@@ -34,8 +43,9 @@ def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login_user(login_in: UserLogin, db: Session = Depends(get_db)):
+    identifier = login_in.username_or_email.strip()
     user = db.query(User).filter(
-        (User.username == login_in.username_or_email) | (User.email == login_in.username_or_email)
+        (User.username.ilike(identifier)) | (User.email.ilike(identifier))
     ).first()
 
     if not user or not verify_password(login_in.password, user.password_hash):
@@ -57,8 +67,9 @@ def get_user_profile(current_user: User = Depends(get_current_user)):
 
 @router.post("/reset-password")
 def reset_password(reset_in: PasswordReset, db: Session = Depends(get_db)):
+    identifier = reset_in.email_or_username.strip()
     user = db.query(User).filter(
-        (User.username == reset_in.email_or_username) | (User.email == reset_in.email_or_username)
+        (User.username.ilike(identifier)) | (User.email.ilike(identifier))
     ).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
