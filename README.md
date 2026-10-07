@@ -4,6 +4,15 @@ A hands-on machine learning security lab built to evaluate how well malware and 
 
 ---
 
+## 🌐 Live Deployments & Documentation
+
+* 🚀 **Web Application (React 19):** [https://ai-robustness-defence-lab.vercel.app](https://ai-robustness-defence-lab.vercel.app)
+* 📄 **Interactive API Documentation (Swagger UI):** [https://ai-robustness-defence-lab.onrender.com/docs](https://ai-robustness-defence-lab.onrender.com/docs) *(Local: [http://localhost:8000/docs](http://localhost:8000/docs))*
+* 📑 **API Schema Reference (ReDoc):** [https://ai-robustness-defence-lab.onrender.com/redoc](https://ai-robustness-defence-lab.onrender.com/redoc) *(Local: [http://localhost:8000/redoc](http://localhost:8000/redoc))*
+* 📦 **GitHub Repository:** [https://github.com/LALI20006/ai-robustness-defence-lab](https://github.com/LALI20006/ai-robustness-defence-lab)
+
+---
+
 ## Why this project?
 
 Most machine learning models trained on network traffic or malware datasets look great in validation—often scoring 95%+ accuracy. But in real-world cybersecurity, attackers do not send clean data. By making tiny, bounded tweaks to network packets or PE file header features without breaking functionality, attackers can cause standard classifiers to completely misclassify threats as benign traffic.
