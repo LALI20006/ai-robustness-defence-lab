@@ -1,5 +1,6 @@
 import React from 'react';
 import { Shield, CheckCircle2, AlertTriangle, Sparkles, BookOpen } from 'lucide-react';
+import ArchitectureDiagrams from '../components/architecture/ArchitectureDiagrams';
 
 export default function AboutPage() {
   const objectives = [
@@ -31,6 +32,11 @@ export default function AboutPage() {
         <p className="text-xs text-slate-400 mt-1">
           Academic and educational AI cybersecurity laboratory designed to evaluate and harden machine-learning classifiers.
         </p>
+      </div>
+
+      {/* System Architecture, Project Flow, and ML Pipeline Diagrams */}
+      <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800 shadow-xl">
+        <ArchitectureDiagrams />
       </div>
 
       {/* Main Framework Objectives */}
