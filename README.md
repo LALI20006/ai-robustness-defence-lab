@@ -17,6 +17,17 @@ We built this lab as an interactive workbench to:
 
 ---
 
+## Architecture & Pipeline Flow
+
+![System Architecture & ML Pipeline Flow](docs/images/architecture_diagram.png)
+
+The project decouples into three main components:
+* **React 19 Frontend:** Clean user interface with interactive tabs for dataset exploration, model training, perturbation simulation, and defense evaluation.
+* **FastAPI Backend:** REST API managing data preprocessing, model lifecycle, and PDF report compilation.
+* **AI/ML Security Framework:** 8-stage pipeline covering zero-leakage preprocessing, model training, bounded adversarial perturbations, and defensive hardening (adversarial training, input validation guards, and voting ensembles).
+
+---
+
 ## What can you do in the lab?
 
 * **Dataset Management:** Comes with pre-loaded benchmarks (NSL-KDD network intrusion traffic and static PE malware features), plus support for uploading your own `.csv`, `.tsv`, or `.parquet` datasets (up to 50MB).
