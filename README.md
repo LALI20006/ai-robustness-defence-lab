@@ -4,11 +4,15 @@ A hands-on machine learning security lab built to evaluate how well malware and 
 
 ---
 
-## 🌐 Live Deployments & Documentation
+## 🌐 Live Deployments & Interactive Links
 
-* 🚀 **Web Application (React 19):** [https://ai-robustness-defence-lab.vercel.app](https://ai-robustness-defence-lab.vercel.app)
-* 📄 **Interactive API Documentation (Swagger UI):** [https://ai-robustness-defence-lab.vercel.app/docs](https://ai-robustness-defence-lab.vercel.app/docs)
-* 📦 **GitHub Repository:** [https://github.com/LALI20006/ai-robustness-defence-lab](https://github.com/LALI20006/ai-robustness-defence-lab)
+| Service | Platform | Live URL |
+| :--- | :--- | :--- |
+| 🚀 **Web Application** | Vercel (Production) | [https://ai-robustness-defence-lab.vercel.app](https://ai-robustness-defence-lab.vercel.app) |
+| 📖 **API Docs (Swagger UI)** | Vercel CDN | [https://ai-robustness-defence-lab.vercel.app/docs/](https://ai-robustness-defence-lab.vercel.app/docs/) |
+| 📚 **API Docs (GitHub Pages)** | GitHub Pages | [https://lali20006.github.io/ai-robustness-defence-lab/](https://lali20006.github.io/ai-robustness-defence-lab/) |
+| 📄 **ReDoc Reference** | Vercel CDN | [https://ai-robustness-defence-lab.vercel.app/docs/redoc.html](https://ai-robustness-defence-lab.vercel.app/docs/redoc.html) |
+| 📦 **GitHub Repository** | GitHub | [https://github.com/LALI20006/ai-robustness-defence-lab](https://github.com/LALI20006/ai-robustness-defence-lab) |
 
 ---
 
@@ -121,7 +125,7 @@ pip install -r backend/requirements.txt
 # Start the FastAPI server
 uvicorn backend.app.main:app --reload --port 8000
 ```
-Backend will be live at `http://127.0.0.1:8000`. You can test the interactive API docs at `http://127.0.0.1:8000/docs`.
+Backend will be live at `http://127.0.0.1:8000`. You can explore the live interactive API docs online at [https://ai-robustness-defence-lab.vercel.app/docs/](https://ai-robustness-defence-lab.vercel.app/docs/).
 
 ### 2. Frontend Setup
 In a new terminal window:

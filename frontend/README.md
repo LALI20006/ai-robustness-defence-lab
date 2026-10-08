@@ -1,16 +1,38 @@
-# React + Vite
+# AI Robustness Defence Lab - Frontend Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Interactive React 19 web application for adversarial ML robustness evaluation and defense against evasion attacks on cybersecurity classifiers (Malware & Network Intrusion Detection).
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🌐 Live Deployments
 
-## React Compiler
+* 🚀 **Production Application:** [https://ai-robustness-defence-lab.vercel.app](https://ai-robustness-defence-lab.vercel.app)
+* 📖 **Interactive API Documentation (Swagger UI):** [https://ai-robustness-defence-lab.vercel.app/docs/](https://ai-robustness-defence-lab.vercel.app/docs/)
+* 📚 **GitHub Pages Documentation Hub:** [https://lali20006.github.io/ai-robustness-defence-lab/](https://lali20006.github.io/ai-robustness-defence-lab/)
+* 📦 **Main GitHub Repository:** [https://github.com/LALI20006/ai-robustness-defence-lab](https://github.com/LALI20006/ai-robustness-defence-lab)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the Oxlint configuration
+## 🛠️ Technology Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+* **Framework:** React 19, Vite
+* **Styling:** Tailwind CSS, Glassmorphic Cyber Dark UI
+* **Icons:** Lucide React
+* **Charts & Visualizations:** Recharts (Bar, Line, Area, Radar, Metrics)
+* **Routing:** React Router v7
+* **HTTP & Simulation:** Axios with dual-layer fault-tolerant simulation engine
+
+---
+
+## 🚀 Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run Vite development server
+npm run dev
+
+# Build production bundle
+npm run build
+```
