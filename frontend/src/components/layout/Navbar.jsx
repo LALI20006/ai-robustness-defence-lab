@@ -59,7 +59,7 @@ export default function Navbar({ onRunDemo, isDemoRunning }) {
             <button
               onClick={() => {
                 logout();
-                navigate('/login');
+                navigate('/');
               }}
               title="Sign Out"
               className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800/60 rounded-lg transition-colors cursor-pointer"
