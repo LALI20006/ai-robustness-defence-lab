@@ -8,7 +8,6 @@ Interactive React 19 web application for adversarial ML robustness evaluation an
 
 * 🚀 **Production Application:** [https://ai-robustness-defence-lab.vercel.app](https://ai-robustness-defence-lab.vercel.app)
 * 📖 **Interactive API Documentation (Swagger UI):** [https://ai-robustness-defence-lab.vercel.app/docs/](https://ai-robustness-defence-lab.vercel.app/docs/)
-* 📚 **GitHub Pages Documentation Hub:** [https://lali20006.github.io/ai-robustness-defence-lab/](https://lali20006.github.io/ai-robustness-defence-lab/)
 * 📦 **Main GitHub Repository:** [https://github.com/LALI20006/ai-robustness-defence-lab](https://github.com/LALI20006/ai-robustness-defence-lab)
 
 ---
