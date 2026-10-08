@@ -240,21 +240,30 @@ const defaultReports = [
   }
 ];
 
-// Storage helpers
+// In-memory fallback cache when localStorage is restricted or in incognito mode
+const memoryCache = new Map();
+
 function getStored(key, defaultVal) {
   try {
-    const val = localStorage.getItem(key);
-    return val ? JSON.parse(val) : defaultVal;
-  } catch {
-    return defaultVal;
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const val = window.localStorage.getItem(key);
+      if (val) return JSON.parse(val);
+    }
+  } catch {}
+  if (memoryCache.has(key)) {
+    return memoryCache.get(key);
   }
+  return defaultVal;
 }
 
 function setStored(key, val) {
+  memoryCache.set(key, val);
   try {
-    localStorage.setItem(key, JSON.stringify(val));
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem(key, JSON.stringify(val));
+    }
   } catch (e) {
-    console.warn('Storage quota exceeded in mock fallback', e);
+    // Seamless fallback to memoryCache when quota or storage is restricted
   }
 }
 
