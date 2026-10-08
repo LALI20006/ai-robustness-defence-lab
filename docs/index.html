@@ -452,12 +452,24 @@
 
     // Fetch OpenAPI specification
     async function loadOpenAPISpec() {
-      try {
-        const res = await fetch('./openapi.json');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        currentSpec = await res.json();
-      } catch (err) {
-        console.warn('Could not load local ./openapi.json directly, falling back to embedded/remote url', err);
+      const basePath = window.location.pathname.endsWith('/')
+        ? window.location.pathname
+        : window.location.pathname + '/';
+      const candidateUrls = [
+        `${basePath}openapi.json`,
+        './openapi.json',
+        '/docs/openapi.json',
+        'openapi.json'
+      ];
+
+      for (const url of candidateUrls) {
+        try {
+          const res = await fetch(url);
+          if (res.ok) {
+            currentSpec = await res.json();
+            break;
+          }
+        } catch (e) {}
       }
       initSwagger();
     }
