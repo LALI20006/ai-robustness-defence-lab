@@ -30,7 +30,20 @@ const extractErrorMessage = (err, fallback) => {
 };
 
 export default function LoginPage() {
-  const [usernameOrEmail, setUsernameOrEmail] = useState('');
+  const [rememberMe, setRememberMe] = useState(() => {
+    try {
+      return localStorage.getItem('remember_me') === 'true';
+    } catch {
+      return true;
+    }
+  });
+  const [usernameOrEmail, setUsernameOrEmail] = useState(() => {
+    try {
+      return localStorage.getItem('remembered_username') || '';
+    } catch {
+      return '';
+    }
+  });
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -51,7 +64,18 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await login(cleanId, password);
+      await login(cleanId, password, rememberMe);
+      try {
+        if (rememberMe) {
+          localStorage.setItem('remember_me', 'true');
+          localStorage.setItem('remembered_username', cleanId);
+        } else {
+          localStorage.removeItem('remember_me');
+          localStorage.removeItem('remembered_username');
+        }
+      } catch (storageErr) {
+        console.warn('Storage preference save error:', storageErr);
+      }
       navigate('/dashboard');
     } catch (err) {
       setError(extractErrorMessage(err, 'Invalid username/email or password'));
@@ -128,6 +152,21 @@ export default function LoginPage() {
                   className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-slate-900/90 border border-slate-800 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
                 />
               </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-0.5 pb-1">
+              <label className="flex items-center space-x-2 cursor-pointer select-none group">
+                <input
+                  type="checkbox"
+                  id="remember-me"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-cyan-500/30 accent-cyan-500 cursor-pointer"
+                />
+                <span className="text-xs text-slate-400 group-hover:text-slate-200 transition-colors">
+                  Remember me
+                </span>
+              </label>
             </div>
 
             <button

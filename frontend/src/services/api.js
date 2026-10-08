@@ -19,7 +19,10 @@ const api = axios.create({
 
 // Attach JWT token if available
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  let token = null;
+  try {
+    token = localStorage.getItem('token') || sessionStorage.getItem('token');
+  } catch {}
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -70,8 +73,12 @@ api.interceptors.response.use(
 
     if (error.response && error.response.status === 401) {
       if (window.location.pathname !== '/login' && window.location.pathname !== '/register' && window.location.pathname !== '/') {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        try {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          sessionStorage.removeItem('token');
+          sessionStorage.removeItem('user');
+        } catch {}
         window.location.href = '/';
       }
     }

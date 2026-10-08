@@ -364,7 +364,10 @@ export async function handleMockFallback(config) {
   }
 
   if (pathname === '/auth/me') {
-    const saved = localStorage.getItem('user');
+    let saved = null;
+    try {
+      saved = localStorage.getItem('user') || sessionStorage.getItem('user');
+    } catch {}
     let u = null;
     try { u = saved ? JSON.parse(saved) : null; } catch {}
     return createResponse(200, u || {

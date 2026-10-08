@@ -3,16 +3,26 @@ import { authAPI } from '../services/api';
 
 const AuthContext = createContext(null);
 
+const getInitialUser = () => {
+  try {
+    const saved = localStorage.getItem('user') || sessionStorage.getItem('user');
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+};
+
+const getInitialToken = () => {
+  try {
+    return localStorage.getItem('token') || sessionStorage.getItem('token') || null;
+  } catch {
+    return null;
+  }
+};
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('user');
-    try {
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
-  });
-  const [token, setToken] = useState(() => localStorage.getItem('token') || null);
+  const [user, setUser] = useState(getInitialUser);
+  const [token, setToken] = useState(getInitialToken);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,7 +31,13 @@ export const AuthProvider = ({ children }) => {
         try {
           const res = await authAPI.getMe();
           setUser(res.data);
-          localStorage.setItem('user', JSON.stringify(res.data));
+          try {
+            if (localStorage.getItem('token')) {
+              localStorage.setItem('user', JSON.stringify(res.data));
+            } else {
+              sessionStorage.setItem('user', JSON.stringify(res.data));
+            }
+          } catch {}
         } catch {
           logout();
         }
@@ -31,14 +47,26 @@ export const AuthProvider = ({ children }) => {
     verifyUser();
   }, [token]);
 
-  const login = async (usernameOrEmail, password) => {
+  const login = async (usernameOrEmail, password, remember = true) => {
     const res = await authAPI.login({
       username_or_email: usernameOrEmail,
       password: password,
     });
     const { access_token, user: userData } = res.data;
-    localStorage.setItem('token', access_token);
-    localStorage.setItem('user', JSON.stringify(userData));
+
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+
+      const storage = remember ? localStorage : sessionStorage;
+      storage.setItem('token', access_token);
+      storage.setItem('user', JSON.stringify(userData));
+    } catch (e) {
+      console.warn('Storage persistence warning:', e);
+    }
+
     setToken(access_token);
     setUser(userData);
     return userData;
@@ -56,8 +84,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+    } catch {}
     setToken(null);
     setUser(null);
   };
