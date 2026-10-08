@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { handleMockFallback } from './mockService';
 
 // Resolve production API Base URL from environment variable
 const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
@@ -25,10 +26,26 @@ api.interceptors.request.use((config) => {
   return config;
 }, (error) => Promise.reject(error));
 
-// Intercept 401 to clear token if expired
+// Intercept responses: if backend is unavailable (404/405 on static CDN like Vercel, or network down), seamlessly fallback to client simulation
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const isStaticDeployOrOffline =
+      (error.response && (error.response.status === 404 || error.response.status === 405)) ||
+      error.code === 'ERR_NETWORK' ||
+      !error.response;
+
+    if (isStaticDeployOrOffline && error.config) {
+      try {
+        const mockResponse = await handleMockFallback(error.config);
+        if (mockResponse) {
+          return mockResponse;
+        }
+      } catch (mockErr) {
+        console.warn('Simulation fallback failed:', mockErr);
+      }
+    }
+
     if (error.response && error.response.status === 401) {
       if (window.location.pathname !== '/login' && window.location.pathname !== '/register' && window.location.pathname !== '/') {
         localStorage.removeItem('token');

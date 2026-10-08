@@ -23,6 +23,9 @@ const extractErrorMessage = (err, fallback) => {
   if (err.response?.status === 502 || err.response?.status === 504) {
     return 'Backend server gateway timeout. Please ensure Uvicorn is running on port 8000.';
   }
+  if (err.response?.status === 405) {
+    return 'Static hosting platform returned 405. Connecting via offline researcher simulation...';
+  }
   if (err.code === 'ERR_NETWORK' || err.message === 'Network Error' || !err.response) {
     return 'Cannot connect to backend server. Please ensure the API server is running on http://127.0.0.1:8000.';
   }
