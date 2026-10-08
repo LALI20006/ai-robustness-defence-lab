@@ -1,13 +1,17 @@
 import React from 'react';
 
 export default function ConfusionMatrix({ matrix, classes, title = 'Confusion Matrix' }) {
-  if (!matrix || matrix.length === 0) {
+  if (!matrix || !Array.isArray(matrix) || matrix.length === 0) {
     return (
       <div className="glass-panel p-4 rounded-xl text-center text-xs text-slate-500">
         No matrix data available
       </div>
     );
   }
+
+  const safeClasses = Array.isArray(classes) && classes.length > 0
+    ? classes
+    : (Array.isArray(matrix[0]) ? matrix[0].map((_, i) => `Class ${i}`) : ['Class 0', 'Class 1']);
 
   // Calculate max cell for color saturation
   const maxVal = Math.max(...matrix.flat(), 1);
@@ -24,7 +28,7 @@ export default function ConfusionMatrix({ matrix, classes, title = 'Confusion Ma
           <thead>
             <tr>
               <th className="p-2 text-[10px] font-mono text-slate-400">Actual \ Pred</th>
-              {classes.map((cls, i) => (
+              {safeClasses.map((cls, i) => (
                 <th key={i} className="p-2 text-[11px] font-semibold text-cyan-400 font-mono">
                   {cls}
                 </th>
@@ -35,7 +39,7 @@ export default function ConfusionMatrix({ matrix, classes, title = 'Confusion Ma
             {matrix.map((row, rowIdx) => (
               <tr key={rowIdx}>
                 <td className="p-2 text-[11px] font-semibold text-slate-300 font-mono text-right pr-3">
-                  {classes[rowIdx] || `C${rowIdx}`}
+                  {safeClasses[rowIdx] || `C${rowIdx}`}
                 </td>
                 {row.map((val, colIdx) => {
                   const isDiagonal = rowIdx === colIdx;

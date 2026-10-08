@@ -399,29 +399,40 @@ export async function handleMockFallback(config) {
   if (pathname.match(/^\/datasets\/(\d+)\/preview$/)) {
     const id = Number(pathname.match(/^\/datasets\/(\d+)\/preview$/)[1]);
     const datasets = getStored(STORAGE_KEY_DATASETS, defaultDatasets);
-    const ds = datasets.find(d => d.id === id) || datasets[0];
+    const ds = datasets.find(d => d.id === id) || datasets[0] || defaultDatasets[0];
+
+    const cols = Array.isArray(ds?.columns) && ds.columns.length > 0
+      ? ds.columns
+      : (ds?.data && ds.data[0] ? Object.keys(ds.data[0]) : defaultDatasets[0].columns);
+
+    const colTypes = { ...(ds?.column_types || defaultDatasets[0].column_types) };
+    cols.forEach(c => {
+      if (!colTypes[c]) colTypes[c] = 'numeric';
+    });
+
+    const rows = Array.isArray(ds?.data) && ds.data.length > 0 ? ds.data : defaultDatasets[0].data;
 
     return createResponse(200, {
-      columns: ds.columns || Object.keys(ds.data?.[0] || {}),
-      column_types: ds.column_types || {},
-      data: ds.data || [],
-      total_rows: ds.rows_count || 5000,
-      target_column: ds.target_column || 'class'
+      columns: cols,
+      column_types: colTypes,
+      data: rows,
+      total_rows: ds?.rows_count || rows.length || 5000,
+      target_column: ds?.target_column || 'class'
     }, config);
   }
 
   if (pathname.match(/^\/datasets\/(\d+)\/statistics$/)) {
     const id = Number(pathname.match(/^\/datasets\/(\d+)\/statistics$/)[1]);
     const datasets = getStored(STORAGE_KEY_DATASETS, defaultDatasets);
-    const ds = datasets.find(d => d.id === id) || datasets[0];
+    const ds = datasets.find(d => d.id === id) || datasets[0] || defaultDatasets[0];
 
     return createResponse(200, {
-      total_samples: ds.rows_count || 5000,
-      numerical_features: (ds.columns_count || 12) - 2,
+      total_samples: ds?.rows_count || 5000,
+      numerical_features: Math.max(1, (ds?.columns_count || 12) - 2),
       categorical_features: 2,
       missing_values_count: 0,
-      class_distribution: ds.class_distribution || { normal: 2692, anomaly: 2308 },
-      target_column: ds.target_column || 'class'
+      class_distribution: ds?.class_distribution || { normal: 2692, anomaly: 2308 },
+      target_column: ds?.target_column || 'class'
     }, config);
   }
 
@@ -620,16 +631,24 @@ export async function handleMockFallback(config) {
         { strength_pct: '15%', robust_accuracy: 0.518 }
       ],
       feature_sensitivity: [
-        { feature: 'src_bytes', impact: 0.24 },
-        { feature: 'dst_bytes', impact: 0.19 },
-        { feature: 'same_srv_rate', impact: 0.15 },
-        { feature: 'count', impact: 0.12 },
-        { feature: 'diff_srv_rate', impact: 0.09 },
-        { feature: 'duration', impact: 0.06 }
+        { feature: 'src_bytes', feature_name: 'src_bytes', impact: 0.24, impact_drop: 0.24 },
+        { feature: 'dst_bytes', feature_name: 'dst_bytes', impact: 0.19, impact_drop: 0.19 },
+        { feature: 'same_srv_rate', feature_name: 'same_srv_rate', impact: 0.15, impact_drop: 0.15 },
+        { feature: 'count', feature_name: 'count', impact: 0.12, impact_drop: 0.12 },
+        { feature: 'diff_srv_rate', feature_name: 'diff_srv_rate', impact: 0.09, impact_drop: 0.09 },
+        { feature: 'duration', feature_name: 'duration', impact: 0.06, impact_drop: 0.06 }
       ],
       confusion_matrix_clean: [[481, 19], [16, 484]],
       confusion_matrix_perturbed: [[280, 220], [210, 290]],
+      classes: ['normal', 'anomaly'],
       target_classes: ['normal', 'anomaly'],
+      sample_results: [
+        { sample_index: 1, true_label: 'normal', clean_prediction: 'normal', perturbed_prediction: 'normal', clean_confidence: 0.98, perturbed_confidence: 0.94, prediction_changed: false },
+        { sample_index: 2, true_label: 'anomaly', clean_prediction: 'anomaly', perturbed_prediction: 'normal', clean_confidence: 0.96, perturbed_confidence: 0.62, prediction_changed: true },
+        { sample_index: 3, true_label: 'anomaly', clean_prediction: 'anomaly', perturbed_prediction: 'anomaly', clean_confidence: 0.99, perturbed_confidence: 0.88, prediction_changed: false },
+        { sample_index: 4, true_label: 'normal', clean_prediction: 'normal', perturbed_prediction: 'normal', clean_confidence: 0.95, perturbed_confidence: 0.91, prediction_changed: false },
+        { sample_index: 5, true_label: 'anomaly', clean_prediction: 'anomaly', perturbed_prediction: 'normal', clean_confidence: 0.92, perturbed_confidence: 0.58, prediction_changed: true }
+      ],
       created_at: new Date().toISOString()
     };
 

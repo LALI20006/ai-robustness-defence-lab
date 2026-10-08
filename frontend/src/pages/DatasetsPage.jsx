@@ -287,9 +287,9 @@ export default function DatasetsPage() {
                     onChange={(e) => handleTargetChange(e.target.value)}
                     className="px-3 py-1.5 text-xs rounded-lg bg-slate-900 border border-cyan-500/50 text-cyan-300 font-mono font-semibold focus:outline-none"
                   >
-                    {preview.columns.map((c) => (
+                    {(Array.isArray(preview.columns) ? preview.columns : []).map((c) => (
                       <option key={c} value={c}>
-                        {c} ({preview.column_types[c]})
+                        {c} {preview.column_types && preview.column_types[c] ? `(${preview.column_types[c]})` : ''}
                       </option>
                     ))}
                   </select>
@@ -320,7 +320,7 @@ export default function DatasetsPage() {
                 <Table className="w-4 h-4 text-cyan-400" />
                 <span>First 15 Rows Inspection</span>
               </h3>
-              <span className="text-xs font-mono text-slate-500">Showing 15 of {preview.total_rows} rows</span>
+              <span className="text-xs font-mono text-slate-500">Showing 15 of {preview.total_rows || (preview.data ? preview.data.length : 0)} rows</span>
             </div>
 
             <div className="overflow-x-auto max-h-96">
@@ -328,7 +328,7 @@ export default function DatasetsPage() {
                 <thead className="bg-slate-900/90 sticky top-0 border-b border-slate-800 text-slate-300">
                   <tr>
                     <th className="p-2.5 text-slate-500">#</th>
-                    {preview.columns.map((col) => (
+                    {(Array.isArray(preview.columns) ? preview.columns : []).map((col) => (
                       <th
                         key={col}
                         className={`p-2.5 font-semibold ${
@@ -337,24 +337,24 @@ export default function DatasetsPage() {
                       >
                         {col}
                         <span className="block text-[9px] text-slate-500 font-normal">
-                          {preview.column_types[col]}
+                          {preview.column_types && preview.column_types[col] ? preview.column_types[col] : 'feature'}
                         </span>
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/60 text-slate-300">
-                  {preview.data.map((row, rowIdx) => (
+                  {(Array.isArray(preview.data) ? preview.data : []).map((row, rowIdx) => (
                     <tr key={rowIdx} className="hover:bg-slate-900/40">
                       <td className="p-2.5 text-slate-500">{rowIdx + 1}</td>
-                      {preview.columns.map((col) => (
+                      {(Array.isArray(preview.columns) ? preview.columns : []).map((col) => (
                         <td
                           key={col}
                           className={`p-2.5 whitespace-nowrap ${
                             col === targetColumn ? 'font-bold text-cyan-300 bg-cyan-950/10' : ''
                           }`}
                         >
-                          {row[col] !== null ? String(row[col]) : <span className="text-rose-400">NaN</span>}
+                          {row && row[col] !== undefined && row[col] !== null ? String(row[col]) : <span className="text-slate-500">-</span>}
                         </td>
                       ))}
                     </tr>

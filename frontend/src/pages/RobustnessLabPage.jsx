@@ -373,12 +373,12 @@ export default function RobustnessLabPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ConfusionMatrix
               matrix={results.confusion_matrix_clean}
-              classes={results.classes}
+              classes={results.classes || results.target_classes || ['normal', 'anomaly']}
               title="Baseline Confusion Matrix (Clean)"
             />
             <ConfusionMatrix
               matrix={results.confusion_matrix_perturbed}
-              classes={results.classes}
+              classes={results.classes || results.target_classes || ['normal', 'anomaly']}
               title={`Perturbed Confusion Matrix (${results.perturbation_method.replace('_', ' ')} ${(results.perturbation_strength * 100).toFixed(0)}%)`}
             />
           </div>
