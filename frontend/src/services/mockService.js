@@ -258,9 +258,27 @@ function setStored(key, val) {
   }
 }
 
+// Response helper matching Axios response structure
+function createResponse(status, data, config) {
+  return {
+    status,
+    statusText: status >= 200 && status < 300 ? 'OK' : 'Error',
+    headers: { 'content-type': 'application/json' },
+    config: config || {},
+    data
+  };
+}
+
 export async function handleMockFallback(config) {
-  const url = (config.url || '').replace(/^[a-z]+:\/\/[^/]+/i, '');
+  const rawUrl = config.url || '';
+  // 1. Strip protocol & host if absolute URL
+  const pathWithoutOrigin = rawUrl.replace(/^[a-z]+:\/\/[^/]+/i, '');
+  // 2. Separate query string
+  const [pathnameWithApi, queryString = ''] = pathWithoutOrigin.split('?');
+  // 3. Strip leading /api
+  const pathname = pathnameWithApi.replace(/^\/api/, '');
   const method = (config.method || 'get').toLowerCase();
+
   let body = {};
   if (config.data) {
     try {
@@ -271,7 +289,7 @@ export async function handleMockFallback(config) {
   }
 
   // --- 1. AUTHENTICATION ---
-  if (url.includes('/auth/register')) {
+  if (pathname === '/auth/register') {
     const users = getStored(STORAGE_KEY_USERS, []);
     const { full_name, username, email, password } = body;
     const cleanUser = (username || 'researcher').trim();
@@ -292,19 +310,16 @@ export async function handleMockFallback(config) {
       setStored(STORAGE_KEY_USERS, users);
     }
 
-    return {
-      status: 201,
-      data: {
-        id: user.id,
-        full_name: user.full_name,
-        username: user.username,
-        email: user.email,
-        created_at: user.created_at
-      }
-    };
+    return createResponse(201, {
+      id: user.id,
+      full_name: user.full_name,
+      username: user.username,
+      email: user.email,
+      created_at: user.created_at
+    }, config);
   }
 
-  if (url.includes('/auth/login')) {
+  if (pathname === '/auth/login') {
     const users = getStored(STORAGE_KEY_USERS, []);
     const { username_or_email } = body;
     const cleanIdent = (username_or_email || 'researcher').trim().toLowerCase();
@@ -327,131 +342,127 @@ export async function handleMockFallback(config) {
     }
 
     const token = `jwt-mock-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-    return {
-      status: 200,
-      data: {
-        access_token: token,
-        token_type: 'bearer',
-        user: {
-          id: matchedUser.id,
-          full_name: matchedUser.full_name,
-          username: matchedUser.username,
-          email: matchedUser.email
-        }
+    return createResponse(200, {
+      access_token: token,
+      token_type: 'bearer',
+      user: {
+        id: matchedUser.id,
+        full_name: matchedUser.full_name,
+        username: matchedUser.username,
+        email: matchedUser.email
       }
-    };
+    }, config);
   }
 
-  if (url.includes('/auth/me')) {
+  if (pathname === '/auth/me') {
     const saved = localStorage.getItem('user');
     let u = null;
     try { u = saved ? JSON.parse(saved) : null; } catch {}
-    return {
-      status: 200,
-      data: u || {
-        id: 1,
-        full_name: 'Dr. Cyber Researcher',
-        username: 'cyber_expert',
-        email: 'researcher@lab.edu'
-      }
-    };
+    return createResponse(200, u || {
+      id: 1,
+      full_name: 'Dr. Cyber Researcher',
+      username: 'cyber_expert',
+      email: 'researcher@lab.edu'
+    }, config);
   }
 
-  if (url.includes('/auth/reset-password')) {
-    return {
-      status: 200,
-      data: { message: 'Password reset link sent to your registered address.' }
-    };
+  if (pathname === '/auth/reset-password') {
+    return createResponse(200, {
+      message: 'Password reset link sent to your registered address.'
+    }, config);
   }
 
   // --- 2. DASHBOARD ---
-  if (url.includes('/dashboard/summary')) {
+  if (pathname === '/dashboard/summary') {
     const datasets = getStored(STORAGE_KEY_DATASETS, defaultDatasets);
     const models = getStored(STORAGE_KEY_MODELS, defaultModels);
     const exps = getStored(STORAGE_KEY_EXPERIMENTS, defaultExperiments);
 
-    return {
-      status: 200,
-      data: {
-        total_datasets: datasets.length,
-        total_models: models.length,
-        total_experiments: exps.length,
-        best_clean_accuracy: 0.965,
-        best_robust_accuracy: 0.923,
-        model_robustness_overview: [
-          { model_name: 'Random Forest (IDS)', clean_accuracy: 0.965, perturbed_accuracy: 0.542, defended_accuracy: 0.923 },
-          { model_name: 'Gradient Boosting', clean_accuracy: 0.958, perturbed_accuracy: 0.510, defended_accuracy: 0.915 },
-          { model_name: 'MLP Neural Net', clean_accuracy: 0.952, perturbed_accuracy: 0.491, defended_accuracy: 0.895 },
-          { model_name: 'Decision Tree (IDS)', clean_accuracy: 0.941, perturbed_accuracy: 0.618, defended_accuracy: 0.884 },
-          { model_name: 'Logistic Regression', clean_accuracy: 0.885, perturbed_accuracy: 0.420, defended_accuracy: 0.825 }
-        ],
-        recent_experiments: exps
-      }
-    };
+    return createResponse(200, {
+      total_datasets: datasets.length,
+      total_models: models.length,
+      total_experiments: exps.length,
+      best_clean_accuracy: 0.965,
+      best_robust_accuracy: 0.923,
+      model_robustness_overview: [
+        { model_name: 'Random Forest (IDS)', clean_accuracy: 96.5, robust_accuracy: 54.2, defended_accuracy: 92.3 },
+        { model_name: 'Gradient Boosting', clean_accuracy: 95.8, robust_accuracy: 51.0, defended_accuracy: 91.5 },
+        { model_name: 'MLP Neural Net', clean_accuracy: 95.2, robust_accuracy: 49.1, defended_accuracy: 89.5 },
+        { model_name: 'Decision Tree (IDS)', clean_accuracy: 94.1, robust_accuracy: 61.8, defended_accuracy: 88.4 },
+        { model_name: 'Logistic Regression', clean_accuracy: 88.5, robust_accuracy: 42.0, defended_accuracy: 82.5 }
+      ],
+      recent_experiments: exps
+    }, config);
   }
 
   // --- 3. DATASETS ---
-  if (url.match(/\/datasets\/\d+\/preview/)) {
-    const id = Number(url.match(/\/datasets\/(\d+)\/preview/)[1]);
+  if (pathname.match(/^\/datasets\/(\d+)\/preview$/)) {
+    const id = Number(pathname.match(/^\/datasets\/(\d+)\/preview$/)[1]);
     const datasets = getStored(STORAGE_KEY_DATASETS, defaultDatasets);
     const ds = datasets.find(d => d.id === id) || datasets[0];
 
-    return {
-      status: 200,
-      data: {
-        columns: ds.columns || Object.keys(ds.data[0]),
-        column_types: ds.column_types || {},
-        data: ds.data || [],
-        total_rows: ds.rows_count || 5000,
-        target_column: ds.target_column || 'class'
-      }
-    };
+    return createResponse(200, {
+      columns: ds.columns || Object.keys(ds.data?.[0] || {}),
+      column_types: ds.column_types || {},
+      data: ds.data || [],
+      total_rows: ds.rows_count || 5000,
+      target_column: ds.target_column || 'class'
+    }, config);
   }
 
-  if (url.match(/\/datasets\/\d+\/statistics/)) {
-    const id = Number(url.match(/\/datasets\/(\d+)\/statistics/)[1]);
+  if (pathname.match(/^\/datasets\/(\d+)\/statistics$/)) {
+    const id = Number(pathname.match(/^\/datasets\/(\d+)\/statistics$/)[1]);
     const datasets = getStored(STORAGE_KEY_DATASETS, defaultDatasets);
     const ds = datasets.find(d => d.id === id) || datasets[0];
 
-    return {
-      status: 200,
-      data: {
-        total_samples: ds.rows_count || 5000,
-        numerical_features: (ds.columns_count || 12) - 2,
-        categorical_features: 2,
-        missing_values_count: 0,
-        class_distribution: ds.class_distribution || { normal: 2692, anomaly: 2308 },
-        target_column: ds.target_column || 'class'
-      }
-    };
+    return createResponse(200, {
+      total_samples: ds.rows_count || 5000,
+      numerical_features: (ds.columns_count || 12) - 2,
+      categorical_features: 2,
+      missing_values_count: 0,
+      class_distribution: ds.class_distribution || { normal: 2692, anomaly: 2308 },
+      target_column: ds.target_column || 'class'
+    }, config);
   }
 
-  if (url.match(/\/datasets\/\d+\/target/)) {
-    const id = Number(url.match(/\/datasets\/(\d+)\/target/)[1]);
+  if (pathname.match(/^\/datasets\/(\d+)\/target$/)) {
+    const id = Number(pathname.match(/^\/datasets\/(\d+)\/target$/)[1]);
     const datasets = getStored(STORAGE_KEY_DATASETS, defaultDatasets);
     const ds = datasets.find(d => d.id === id);
     if (ds && body.target_column) {
       ds.target_column = body.target_column;
       setStored(STORAGE_KEY_DATASETS, datasets);
     }
-    return { status: 200, data: { success: true, target_column: body.target_column } };
+    return createResponse(200, { success: true, target_column: body.target_column }, config);
   }
 
-  if (url.match(/\/datasets\/\d+/) && method === 'delete') {
-    const id = Number(url.match(/\/datasets\/(\d+)/)[1]);
+  if (pathname.match(/^\/datasets\/(\d+)$/) && method === 'delete') {
+    const id = Number(pathname.match(/^\/datasets\/(\d+)$/)[1]);
     const datasets = getStored(STORAGE_KEY_DATASETS, defaultDatasets).filter(d => d.id !== id);
     setStored(STORAGE_KEY_DATASETS, datasets);
-    return { status: 200, data: { success: true } };
+    return createResponse(200, { success: true }, config);
   }
 
-  if (url.includes('/datasets/load-sample')) {
+  if (pathname.match(/^\/datasets\/(\d+)$/) && method === 'get') {
+    const id = Number(pathname.match(/^\/datasets\/(\d+)$/)[1]);
     const datasets = getStored(STORAGE_KEY_DATASETS, defaultDatasets);
-    const isMalware = url.includes('malware');
-    const sample = isMalware ? defaultDatasets[1] : defaultDatasets[0];
-    return { status: 200, data: sample };
+    const ds = datasets.find(d => d.id === id) || datasets[0];
+    return createResponse(200, ds, config);
   }
 
-  if (url.includes('/datasets/upload')) {
+  if (pathname === '/datasets/load-sample') {
+    const datasets = getStored(STORAGE_KEY_DATASETS, defaultDatasets);
+    const isMalware = queryString.includes('malware') || rawUrl.includes('malware') || body.sample_type === 'malware';
+    const sample = isMalware ? defaultDatasets[1] : defaultDatasets[0];
+    const exists = datasets.some(d => d.id === sample.id);
+    if (!exists) {
+      datasets.unshift(sample);
+      setStored(STORAGE_KEY_DATASETS, datasets);
+    }
+    return createResponse(200, sample, config);
+  }
+
+  if (pathname === '/datasets/upload') {
     const datasets = getStored(STORAGE_KEY_DATASETS, defaultDatasets);
     const newDs = {
       id: Date.now(),
@@ -473,16 +484,16 @@ export async function handleMockFallback(config) {
     };
     datasets.unshift(newDs);
     setStored(STORAGE_KEY_DATASETS, datasets);
-    return { status: 201, data: newDs };
+    return createResponse(201, newDs, config);
   }
 
-  if (url.includes('/datasets') && method === 'get') {
+  if (pathname === '/datasets' && method === 'get') {
     const datasets = getStored(STORAGE_KEY_DATASETS, defaultDatasets);
-    return { status: 200, data: datasets };
+    return createResponse(200, datasets, config);
   }
 
   // --- 4. PREPROCESSING ---
-  if (url.includes('/preprocessing/run')) {
+  if (pathname === '/preprocessing/run') {
     const datasets = getStored(STORAGE_KEY_DATASETS, defaultDatasets);
     const dsId = Number(body.dataset_id) || 1;
     const ds = datasets.find(d => d.id === dsId) || datasets[0];
@@ -500,18 +511,40 @@ export async function handleMockFallback(config) {
       status: 'completed',
       created_at: new Date().toISOString()
     };
-    return { status: 200, data: prepResult };
+    return createResponse(200, prepResult, config);
+  }
+
+  if (pathname.match(/^\/preprocessing\/\d+$/)) {
+    return createResponse(200, {
+      id: 1,
+      dataset_id: 1,
+      status: 'completed',
+      scaling_method: 'standard',
+      encoding_method: 'onehot',
+      train_rows: 4000,
+      test_rows: 1000,
+      original_features_count: 12,
+      processed_features_count: 34,
+      target_classes: ['normal', 'anomaly']
+    }, config);
   }
 
   // --- 5. MODELS ---
-  if (url.match(/\/models\/\d+/) && method === 'delete') {
-    const id = Number(url.match(/\/models\/(\d+)/)[1]);
+  if (pathname.match(/^\/models\/(\d+)$/) && method === 'delete') {
+    const id = Number(pathname.match(/^\/models\/(\d+)$/)[1]);
     const models = getStored(STORAGE_KEY_MODELS, defaultModels).filter(m => m.id !== id);
     setStored(STORAGE_KEY_MODELS, models);
-    return { status: 200, data: { success: true } };
+    return createResponse(200, { success: true }, config);
   }
 
-  if (url.includes('/models/train')) {
+  if (pathname.match(/^\/models\/(\d+)$/) && method === 'get') {
+    const id = Number(pathname.match(/^\/models\/(\d+)$/)[1]);
+    const models = getStored(STORAGE_KEY_MODELS, defaultModels);
+    const model = models.find(m => m.id === id) || models[0];
+    return createResponse(200, model, config);
+  }
+
+  if (pathname === '/models/train') {
     const models = getStored(STORAGE_KEY_MODELS, defaultModels);
     const alg = body.algorithm || 'random_forest';
     const acc = +(0.94 + Math.random() * 0.035).toFixed(3);
@@ -548,16 +581,16 @@ export async function handleMockFallback(config) {
     };
     models.unshift(newModel);
     setStored(STORAGE_KEY_MODELS, models);
-    return { status: 201, data: newModel };
+    return createResponse(201, newModel, config);
   }
 
-  if (url.includes('/models') && method === 'get') {
+  if (pathname === '/models' && method === 'get') {
     const models = getStored(STORAGE_KEY_MODELS, defaultModels);
-    return { status: 200, data: models };
+    return createResponse(200, models, config);
   }
 
   // --- 6. ROBUSTNESS & ATTACKS ---
-  if (url.includes('/robustness/run')) {
+  if (pathname === '/robustness/run') {
     const eps = Number(body.perturbation_strength) || 0.05;
     const cleanAcc = 0.965;
     const robustAcc = Math.max(0.38, +(cleanAcc - (eps * 5.2)).toFixed(3));
@@ -604,102 +637,94 @@ export async function handleMockFallback(config) {
     exps.unshift(exp);
     setStored(STORAGE_KEY_EXPERIMENTS, exps);
 
-    return { status: 200, data: exp };
+    return createResponse(200, exp, config);
   }
 
-  if (url.match(/\/robustness\/experiments\/\d+/)) {
-    const id = Number(url.match(/\/robustness\/experiments\/(\d+)/)[1]);
+  if (pathname.match(/^\/robustness\/experiments\/(\d+)$/) && method === 'delete') {
+    const id = Number(pathname.match(/^\/robustness\/experiments\/(\d+)$/)[1]);
+    const exps = getStored(STORAGE_KEY_EXPERIMENTS, defaultExperiments).filter(e => e.id !== id && e.experiment_id !== id);
+    setStored(STORAGE_KEY_EXPERIMENTS, exps);
+    return createResponse(200, { success: true }, config);
+  }
+
+  if (pathname.match(/^\/robustness\/experiments\/(\d+)$/) && method === 'get') {
+    const id = Number(pathname.match(/^\/robustness\/experiments\/(\d+)$/)[1]);
     const exps = getStored(STORAGE_KEY_EXPERIMENTS, defaultExperiments);
     const exp = exps.find(e => e.id === id || e.experiment_id === id) || exps[0];
-    return { status: 200, data: exp };
+    return createResponse(200, exp, config);
   }
 
   // --- 7. DEFENSIVE HARDENING ---
-  if (url.includes('/defence/input-validation')) {
-    return {
-      status: 200,
-      data: {
-        id: Date.now(),
-        method: 'input_validation',
-        total_evaluated: 1000,
-        rejected_samples: 438,
-        rejection_rate: 0.438,
-        precision_preserved: 0.985,
-        original_robust_accuracy: 0.542,
-        defended_robust_accuracy: 0.892,
-        robustness_gain: 0.350,
-        defended_confusion_matrix: [[450, 50], [42, 458]],
-        target_classes: ['normal', 'anomaly']
-      }
-    };
+  if (pathname === '/defence/input-validation') {
+    return createResponse(200, {
+      id: Date.now(),
+      method: 'input_validation',
+      total_evaluated: 1000,
+      rejected_samples: 438,
+      rejection_rate: 0.438,
+      precision_preserved: 0.985,
+      original_robust_accuracy: 0.542,
+      defended_robust_accuracy: 0.892,
+      robustness_gain: 0.350,
+      defended_confusion_matrix: [[450, 50], [42, 458]],
+      target_classes: ['normal', 'anomaly']
+    }, config);
   }
 
-  if (url.includes('/defence/adversarial-training')) {
-    return {
-      status: 200,
-      data: {
-        id: Date.now(),
-        method: 'adversarial_training',
-        original_robust_accuracy: 0.542,
-        defended_robust_accuracy: 0.923,
-        robustness_gain: 0.381,
-        clean_accuracy_cost: 0.012,
-        defended_confusion_matrix: [[465, 35], [29, 471]],
-        target_classes: ['normal', 'anomaly']
-      }
-    };
+  if (pathname === '/defence/adversarial-training') {
+    return createResponse(200, {
+      id: Date.now(),
+      method: 'adversarial_training',
+      original_robust_accuracy: 0.542,
+      defended_robust_accuracy: 0.923,
+      robustness_gain: 0.381,
+      clean_accuracy_cost: 0.012,
+      defended_confusion_matrix: [[465, 35], [29, 471]],
+      target_classes: ['normal', 'anomaly']
+    }, config);
   }
 
-  if (url.includes('/defence/ensemble')) {
-    return {
-      status: 200,
-      data: {
-        id: Date.now(),
-        method: 'ensemble',
-        ensemble_clean_accuracy: 0.972,
-        ensemble_robust_accuracy: 0.908,
-        voting_type: body.voting_type || 'soft',
-        models_combined: 2,
-        original_robust_accuracy: 0.542,
-        defended_robust_accuracy: 0.908,
-        robustness_gain: 0.366,
-        defended_confusion_matrix: [[460, 40], [35, 465]],
-        target_classes: ['normal', 'anomaly']
-      }
-    };
+  if (pathname === '/defence/ensemble') {
+    return createResponse(200, {
+      id: Date.now(),
+      method: 'ensemble',
+      ensemble_clean_accuracy: 0.972,
+      ensemble_robust_accuracy: 0.908,
+      voting_type: body.voting_type || 'soft',
+      models_combined: 2,
+      original_robust_accuracy: 0.542,
+      defended_robust_accuracy: 0.908,
+      robustness_gain: 0.366,
+      defended_confusion_matrix: [[460, 40], [35, 465]],
+      target_classes: ['normal', 'anomaly']
+    }, config);
   }
 
   // --- 8. COMPARISON ---
-  if (url.includes('/comparison/models')) {
-    return {
-      status: 200,
-      data: {
-        models: [
-          { id: 1, model_name: 'Random Forest (IDS)', clean_accuracy: 0.965, robust_accuracy: 0.542, defended_robust_accuracy: 0.923 },
-          { id: 2, model_name: 'Gradient Boosting (IDS)', clean_accuracy: 0.958, robust_accuracy: 0.510, defended_robust_accuracy: 0.915 },
-          { id: 3, model_name: 'MLP Neural Network', clean_accuracy: 0.952, robust_accuracy: 0.491, defended_robust_accuracy: 0.895 },
-          { id: 4, model_name: 'Decision Tree (IDS)', clean_accuracy: 0.941, robust_accuracy: 0.618, defended_robust_accuracy: 0.884 },
-          { id: 5, model_name: 'Logistic Regression', clean_accuracy: 0.885, robust_accuracy: 0.420, defended_robust_accuracy: 0.825 }
-        ],
-        best_clean_model: 'Random Forest (IDS) (96.5%)',
-        best_robust_model: 'Decision Tree (IDS) (61.8%)',
-        best_defended_model: 'Random Forest + AdvRetrain (92.3%)'
-      }
-    };
+  if (pathname === '/comparison/models') {
+    return createResponse(200, {
+      models: [
+        { id: 1, model_name: 'Random Forest (IDS)', clean_accuracy: 0.965, robust_accuracy: 0.542, defended_robust_accuracy: 0.923 },
+        { id: 2, model_name: 'Gradient Boosting (IDS)', clean_accuracy: 0.958, robust_accuracy: 0.510, defended_robust_accuracy: 0.915 },
+        { id: 3, model_name: 'MLP Neural Network', clean_accuracy: 0.952, robust_accuracy: 0.491, defended_robust_accuracy: 0.895 },
+        { id: 4, model_name: 'Decision Tree (IDS)', clean_accuracy: 0.941, robust_accuracy: 0.618, defended_robust_accuracy: 0.884 },
+        { id: 5, model_name: 'Logistic Regression', clean_accuracy: 0.885, robust_accuracy: 0.420, defended_robust_accuracy: 0.825 }
+      ],
+      best_clean_model: 'Random Forest (IDS) (96.5%)',
+      best_robust_model: 'Decision Tree (IDS) (61.8%)',
+      best_defended_model: 'Random Forest + AdvRetrain (92.3%)'
+    }, config);
   }
 
-  if (url.includes('/comparison/experiments')) {
+  if (pathname === '/comparison/experiments') {
     const exps = getStored(STORAGE_KEY_EXPERIMENTS, defaultExperiments);
-    return {
-      status: 200,
-      data: {
-        experiments: exps
-      }
-    };
+    return createResponse(200, {
+      experiments: exps
+    }, config);
   }
 
   // --- 9. REPORTS ---
-  if (url.includes('/reports/generate')) {
+  if (pathname.match(/^\/reports\/generate(\/\d+)?$/)) {
     const reports = getStored(STORAGE_KEY_REPORTS, defaultReports);
     const newRep = {
       id: Date.now(),
@@ -712,56 +737,58 @@ export async function handleMockFallback(config) {
     };
     reports.unshift(newRep);
     setStored(STORAGE_KEY_REPORTS, reports);
-    return { status: 201, data: newRep };
+    return createResponse(201, newRep, config);
   }
 
-  if (url.includes('/reports') && method === 'get') {
+  if (pathname === '/reports' && method === 'get') {
     const reports = getStored(STORAGE_KEY_REPORTS, defaultReports);
-    return { status: 200, data: reports };
+    return createResponse(200, reports, config);
   }
 
   // --- 10. DEMO EXECUTION ---
-  if (url.includes('/demo/run')) {
-    return {
-      status: 200,
-      data: {
-        success: true,
-        message: 'Demo Experiment executed successfully!',
-        dataset_name: 'NSL-KDD Intrusion Demo',
-        model_name: 'Random Forest Intrusion Classifier',
-        clean_accuracy: 0.965,
-        robust_accuracy: 0.542,
-        accuracy_drop: 0.423,
-        attack_success_rate: 43.8,
-        defence_method: 'Adversarial Training',
-        defended_robust_accuracy: 0.923,
-        robustness_improvement: 0.381,
-        attack_reduction: 38.1,
-        experiment_id: 101,
-        model_id: 1,
-        defended_model_id: 101,
-        strength_sweep: [
-          { strength_pct: '1%', robust_accuracy: 0.938 },
-          { strength_pct: '3%', robust_accuracy: 0.884 },
-          { strength_pct: '5%', robust_accuracy: 0.792 },
-          { strength_pct: '10%', robust_accuracy: 0.625 },
-          { strength_pct: '15%', robust_accuracy: 0.518 }
-        ],
-        feature_sensitivity: [
-          { feature: 'src_bytes', impact: 0.24 },
-          { feature: 'dst_bytes', impact: 0.19 },
-          { feature: 'same_srv_rate', impact: 0.15 },
-          { feature: 'count', impact: 0.12 },
-          { feature: 'diff_srv_rate', impact: 0.09 },
-          { feature: 'duration', impact: 0.06 }
-        ],
-        confusion_matrix_clean: [[481, 19], [16, 484]],
-        confusion_matrix_perturbed: [[280, 220], [210, 290]],
-        confusion_matrix_defended: [[465, 35], [29, 471]],
-        classes: ['normal', 'anomaly']
-      }
-    };
+  if (pathname === '/demo/run') {
+    return createResponse(200, {
+      success: true,
+      message: 'Demo Experiment executed successfully!',
+      dataset_name: 'NSL-KDD Intrusion Demo',
+      model_name: 'Random Forest Intrusion Classifier',
+      clean_accuracy: 0.965,
+      robust_accuracy: 0.542,
+      accuracy_drop: 0.423,
+      attack_success_rate: 43.8,
+      defence_method: 'Adversarial Training',
+      defended_robust_accuracy: 0.923,
+      robustness_improvement: 0.381,
+      attack_reduction: 38.1,
+      experiment_id: 101,
+      model_id: 1,
+      defended_model_id: 101,
+      strength_sweep: [
+        { strength_pct: '1%', robust_accuracy: 0.938 },
+        { strength_pct: '3%', robust_accuracy: 0.884 },
+        { strength_pct: '5%', robust_accuracy: 0.792 },
+        { strength_pct: '10%', robust_accuracy: 0.625 },
+        { strength_pct: '15%', robust_accuracy: 0.518 }
+      ],
+      feature_sensitivity: [
+        { feature: 'src_bytes', impact: 0.24 },
+        { feature: 'dst_bytes', impact: 0.19 },
+        { feature: 'same_srv_rate', impact: 0.15 },
+        { feature: 'count', impact: 0.12 },
+        { feature: 'diff_srv_rate', impact: 0.09 },
+        { feature: 'duration', impact: 0.06 }
+      ],
+      confusion_matrix_clean: [[481, 19], [16, 484]],
+      confusion_matrix_perturbed: [[280, 220], [210, 290]],
+      confusion_matrix_defended: [[465, 35], [29, 471]],
+      classes: ['normal', 'anomaly']
+    }, config);
   }
 
-  return { status: 200, data: { status: 'success' } };
+  // Safe fallback: plural endpoints always return an empty array to prevent e.map is not a function
+  if (method === 'get' && (pathname.endsWith('s') || pathname.includes('list'))) {
+    return createResponse(200, [], config);
+  }
+
+  return createResponse(200, { status: 'success' }, config);
 }

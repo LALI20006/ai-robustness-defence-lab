@@ -57,7 +57,7 @@ export default function DashboardPage() {
     );
   }
 
-  const chartData = summary?.model_robustness_overview || [];
+  const chartData = Array.isArray(summary?.model_robustness_overview) ? summary.model_robustness_overview : [];
 
   return (
     <div className="space-y-8">
@@ -198,7 +198,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/60 font-mono">
-                  {summary.recent_experiments.map((exp) => (
+                  {(Array.isArray(summary?.recent_experiments) ? summary.recent_experiments : []).map((exp) => (
                     <tr key={exp.id} className="hover:bg-slate-900/50 transition-colors">
                       <td className="py-2.5 font-semibold text-slate-200">{exp.model_name}</td>
                       <td className="py-2.5 text-slate-400">

@@ -32,10 +32,11 @@ export default function ReportsPage() {
         reportsAPI.list(),
         comparisonAPI.getExperimentsComparison(),
       ]);
-      setReports(repRes.data);
-      setExperiments(expRes.data.experiments);
-      if (!selectedExpId && expRes.data.experiments.length > 0) {
-        setSelectedExpId(expRes.data.experiments[0].experiment_id);
+      setReports(Array.isArray(repRes.data) ? repRes.data : []);
+      const exps = Array.isArray(expRes.data?.experiments) ? expRes.data.experiments : (Array.isArray(expRes.data) ? expRes.data : []);
+      setExperiments(exps);
+      if (!selectedExpId && exps.length > 0) {
+        setSelectedExpId(exps[0].experiment_id || exps[0].id);
       }
     } catch {
       setError('Failed to fetch reports or experiments.');
@@ -61,7 +62,7 @@ export default function ReportsPage() {
       const res = await reportsAPI.generate(selectedExpId, reportFormat, customTitle);
       setSuccess(`Report "${res.data.title}" compiled successfully in ${reportFormat.toUpperCase()} format!`);
       const repRes = await reportsAPI.list();
-      setReports(repRes.data);
+      setReports(Array.isArray(repRes.data) ? repRes.data : []);
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to generate report.');
     } finally {

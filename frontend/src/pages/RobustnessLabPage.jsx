@@ -58,9 +58,10 @@ export default function RobustnessLabPage() {
     const loadModels = async () => {
       try {
         const res = await modelsAPI.list();
-        setModels(res.data);
-        if (!selectedModelId && res.data.length > 0) {
-          setSelectedModelId(res.data[0].id);
+        const list = Array.isArray(res.data) ? res.data : [];
+        setModels(list);
+        if (!selectedModelId && list.length > 0) {
+          setSelectedModelId(list[0].id);
         }
       } catch {
         setError('Failed to fetch models list.');
@@ -159,7 +160,7 @@ export default function RobustnessLabPage() {
                 className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-800 text-white font-mono focus:outline-none focus:border-cyan-500"
               >
                 <option value="" disabled>Select Trained Model</option>
-                {models.map((m) => (
+                {(Array.isArray(models) ? models : []).map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.model_name} (Clean Acc: {(m.clean_accuracy * 100).toFixed(1)}%)
                   </option>

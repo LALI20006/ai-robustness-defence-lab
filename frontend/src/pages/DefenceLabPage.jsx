@@ -58,12 +58,13 @@ export default function DefenceLabPage() {
     const loadModels = async () => {
       try {
         const res = await modelsAPI.list();
-        setModels(res.data);
-        if (!selectedModelId && res.data.length > 0) {
-          setSelectedModelId(res.data[0].id);
+        const list = Array.isArray(res.data) ? res.data : [];
+        setModels(list);
+        if (!selectedModelId && list.length > 0) {
+          setSelectedModelId(list[0].id);
         }
-        if (res.data.length >= 2) {
-          setSelectedEnsembleIds([res.data[0].id, res.data[1].id]);
+        if (list.length >= 2) {
+          setSelectedEnsembleIds([list[0].id, list[1].id]);
         }
       } catch {
         setError('Failed to fetch models.');

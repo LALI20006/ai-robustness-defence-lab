@@ -64,11 +64,13 @@ export default function ModelsPage() {
           datasetsAPI.list(),
           modelsAPI.list(),
         ]);
-        setDatasets(dsRes.data);
-        setExistingModels(mRes.data);
+        const dsList = Array.isArray(dsRes.data) ? dsRes.data : [];
+        const mList = Array.isArray(mRes.data) ? mRes.data : [];
+        setDatasets(dsList);
+        setExistingModels(mList);
 
-        if (!selectedDatasetId && dsRes.data.length > 0) {
-          setSelectedDatasetId(dsRes.data[0].id);
+        if (!selectedDatasetId && dsList.length > 0) {
+          setSelectedDatasetId(dsList[0].id);
         }
       } catch {
         setError('Failed to fetch datasets or models.');
@@ -129,7 +131,7 @@ export default function ModelsPage() {
       setTrainedResult(res.data);
       // Refresh existing models
       const mRes = await modelsAPI.list();
-      setExistingModels(mRes.data);
+      setExistingModels(Array.isArray(mRes.data) ? mRes.data : []);
     } catch (err) {
       setError(err.response?.data?.detail || 'Training failed.');
     } finally {

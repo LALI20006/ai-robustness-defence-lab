@@ -42,7 +42,7 @@ export default function ComparePage() {
     return <div className="text-xs text-slate-400 animate-pulse">Aggregating comparison telemetry...</div>;
   }
 
-  const models = data?.models || [];
+  const models = Array.isArray(data?.models) ? data.models : [];
 
   return (
     <div className="space-y-8">

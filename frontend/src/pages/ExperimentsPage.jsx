@@ -27,8 +27,9 @@ export default function ExperimentsPage() {
     try {
       setLoading(true);
       const res = await comparisonAPI.getExperimentsComparison();
-      setExperiments(res.data.experiments);
-      setFilteredExps(res.data.experiments);
+      const exps = Array.isArray(res.data?.experiments) ? res.data.experiments : (Array.isArray(res.data) ? res.data : []);
+      setExperiments(exps);
+      setFilteredExps(exps);
     } catch {
       setError('Failed to fetch experiment history.');
     } finally {
@@ -41,7 +42,7 @@ export default function ExperimentsPage() {
   }, []);
 
   useEffect(() => {
-    let list = [...experiments];
+    let list = Array.isArray(experiments) ? [...experiments] : [];
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
       list = list.filter(

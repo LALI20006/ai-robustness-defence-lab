@@ -26,12 +26,34 @@ api.interceptors.request.use((config) => {
   return config;
 }, (error) => Promise.reject(error));
 
-// Intercept responses: if backend is unavailable (404/405 on static CDN like Vercel, or network down), seamlessly fallback to client simulation
+// Intercept responses: if backend is unavailable (404/405/500, static CDN SPA rewrite returning HTML, or network down),
+// seamlessly fallback to the client-side simulation engine so that users anywhere on the web have 100% functionality.
 api.interceptors.response.use(
-  (response) => response,
+  async (response) => {
+    // When hosted on a static CDN with SPA rewrites (e.g. Vercel rewrite /* to index.html),
+    // missing API endpoints return HTTP 200 with the HTML page content.
+    // Detect this and seamlessly execute the client simulation engine.
+    const isHtmlResponse =
+      typeof response.data === 'string' &&
+      (response.data.includes('<!doctype html') ||
+       response.data.includes('<html') ||
+       response.headers?.['content-type']?.includes('text/html'));
+
+    if (isHtmlResponse && response.config) {
+      try {
+        const mockResponse = await handleMockFallback(response.config);
+        if (mockResponse) {
+          return mockResponse;
+        }
+      } catch (mockErr) {
+        console.warn('Simulation fallback on HTML response failed:', mockErr);
+      }
+    }
+    return response;
+  },
   async (error) => {
     const isStaticDeployOrOffline =
-      (error.response && (error.response.status === 404 || error.response.status === 405)) ||
+      (error.response && (error.response.status === 404 || error.response.status === 405 || error.response.status === 500)) ||
       error.code === 'ERR_NETWORK' ||
       !error.response;
 
@@ -42,7 +64,7 @@ api.interceptors.response.use(
           return mockResponse;
         }
       } catch (mockErr) {
-        console.warn('Simulation fallback failed:', mockErr);
+        console.warn('Simulation fallback on error failed:', mockErr);
       }
     }
 

@@ -38,9 +38,10 @@ export default function PreprocessingPage() {
     const fetchDatasets = async () => {
       try {
         const res = await datasetsAPI.list();
-        setDatasets(res.data);
-        if (!selectedDatasetId && res.data.length > 0) {
-          setSelectedDatasetId(res.data[0].id);
+        const list = Array.isArray(res.data) ? res.data : [];
+        setDatasets(list);
+        if (!selectedDatasetId && list.length > 0) {
+          setSelectedDatasetId(list[0].id);
         }
       } catch {
         setError('Failed to fetch datasets list.');

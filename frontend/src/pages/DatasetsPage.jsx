@@ -34,9 +34,10 @@ export default function DatasetsPage() {
     try {
       setLoading(true);
       const res = await datasetsAPI.list();
-      setDatasets(res.data);
-      if (res.data.length > 0 && !selectedDatasetId) {
-        selectDataset(res.data[0].id);
+      const list = Array.isArray(res.data) ? res.data : [];
+      setDatasets(list);
+      if (list.length > 0 && !selectedDatasetId) {
+        selectDataset(list[0].id);
       }
     } catch (err) {
       setError('Failed to load datasets.');
@@ -57,9 +58,9 @@ export default function DatasetsPage() {
         datasetsAPI.getPreview(id),
         datasetsAPI.getStats(id),
       ]);
-      setPreview(prevRes.data);
-      setStats(statsRes.data);
-      setTargetColumn(statsRes.data.target_column || prevRes.data.target_column || '');
+      setPreview(prevRes.data && typeof prevRes.data === 'object' && Array.isArray(prevRes.data.columns) ? prevRes.data : null);
+      setStats(statsRes.data && typeof statsRes.data === 'object' ? statsRes.data : null);
+      setTargetColumn(statsRes.data?.target_column || prevRes.data?.target_column || '');
     } catch (err) {
       setError('Failed to load preview or statistics for selected dataset.');
     }
@@ -236,11 +237,11 @@ export default function DatasetsPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between border-b border-slate-800 pb-2">
           <h3 className="text-xs font-mono uppercase text-slate-400">Available Ingested Datasets</h3>
-          <span className="text-xs font-mono text-slate-500">{datasets.length} Total</span>
+          <span className="text-xs font-mono text-slate-500">{(Array.isArray(datasets) ? datasets : []).length} Total</span>
         </div>
 
         <div className="flex items-center space-x-2 overflow-x-auto pb-2">
-          {datasets.map((d) => (
+          {(Array.isArray(datasets) ? datasets : []).map((d) => (
             <div
               key={d.id}
               onClick={() => selectDataset(d.id)}
