@@ -31,7 +31,7 @@ export default function Navbar({ onRunDemo, isDemoRunning }) {
           target="_blank"
           rel="noopener noreferrer"
           className="hidden md:flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-cyan-400 border border-cyan-500/20 hover:border-cyan-500/40 transition-all shadow-sm"
-          title="Open Interactive API Documentation (Swagger & ReDoc)"
+          title="Open Interactive API Documentation (Swagger UI)"
         >
           <FileCode className="w-3.5 h-3.5" />
           <span>API Docs</span>
