@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Shield, Play, LogOut, User as UserIcon } from 'lucide-react';
+import { Shield, Play, LogOut, User as UserIcon, FileCode } from 'lucide-react';
 
 export default function Navbar({ onRunDemo, isDemoRunning }) {
   const { user, logout, isAuthenticated } = useAuth();
@@ -25,7 +25,17 @@ export default function Navbar({ onRunDemo, isDemoRunning }) {
         </Link>
       </div>
 
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-3">
+        <a
+          href="/docs"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden md:flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-cyan-400 border border-cyan-500/20 hover:border-cyan-500/40 transition-all shadow-sm"
+          title="Open Interactive API Documentation (Swagger & ReDoc)"
+        >
+          <FileCode className="w-3.5 h-3.5" />
+          <span>API Docs</span>
+        </a>
         {isAuthenticated ? (
           <>
             <button

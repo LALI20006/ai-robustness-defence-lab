@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Documentation | AI Robustness Defence Lab</title>
+  <meta name="description" content="Interactive OpenAPI 3.1 Specification and REST API Documentation for AI Robustness & Defence Lab. Explore and test machine learning security endpoints.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Swagger UI Styles -->
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+  
+  <style>
+    :root {
+      --bg-dark: #0B0F17;
+      --bg-header: #111827;
+      --bg-card: rgba(17, 24, 39, 0.95);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --accent-cyan: #06B6D4;
+      --accent-blue: #3B82F6;
+      --accent-emerald: #10B981;
+      --text-main: #F3F4F6;
+      --text-muted: #9CA3AF;
+      --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Sticky Navigation Bar */
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(11, 15, 23, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0B0F17;
+      font-weight: 800;
+      font-size: 20px;
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.25);
+    }
+
+    .brand-info h1 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-info span {
+      font-size: 11px;
+      color: var(--accent-cyan);
+      font-family: var(--font-mono);
+      font-weight: 500;
+    }
+
+    .badge-openapi {
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      color: var(--accent-cyan);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+
+    /* Actions and controls */
+    .controls-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .server-select-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .server-select {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: var(--font-sans);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .server-select:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .toggle-group {
+      display: flex;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 2px;
+    }
+
+    .toggle-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: var(--font-sans);
+    }
+
+    .toggle-btn.active {
+      background: var(--accent-cyan);
+      color: #0B0F17;
+      box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      font-family: var(--font-sans);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #FFFFFF;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #06B6D4, #3B82F6);
+      color: #0B0F17;
+      border: none;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    /* Container for Docs */
+    #swagger-container, #redoc-container {
+      flex: 1;
+      width: 100%;
+    }
+
+    #redoc-container {
+      display: none;
+      background: #FFFFFF;
+      min-height: calc(100vh - 65px);
+    }
+
+    /* Swagger Custom Dark Palette Overrides */
+    .swagger-ui {
+      background-color: var(--bg-dark);
+      padding-bottom: 60px;
+    }
+
+    .swagger-ui .info {
+      margin: 28px 0 20px 0;
+    }
+
+    .swagger-ui .info .title {
+      color: #F8FAFC !important;
+      font-family: var(--font-sans) !important;
+      font-weight: 800;
+    }
+
+    .swagger-ui .info p, .swagger-ui .info li {
+      color: #94A3B8 !important;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .swagger-ui .scheme-container {
+      background: rgba(17, 24, 39, 0.7) !important;
+      border-bottom: 1px solid var(--border-color) !important;
+      box-shadow: none !important;
+      padding: 16px 0 !important;
+    }
+
+    .swagger-ui select {
+      background: #1F2937 !important;
+      color: #F3F4F6 !important;
+      border-color: #374151 !important;
+    }
+
+    .swagger-ui .opblock-tag {
+      color: #E2E8F0 !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+      font-family: var(--font-sans) !important;
+      font-weight: 700;
+    }
+
+    .swagger-ui .opblock-tag small {
+      color: #94A3B8 !important;
+    }
+
+    .swagger-ui .opblock {
+      border-radius: 8px !important;
+      box-shadow: none !important;
+      border: 1px solid rgba(255, 255, 255, 0.06) !important;
+      margin-bottom: 12px !important;
+    }
+
+    .swagger-ui .opblock .opblock-summary {
+      padding: 10px 14px !important;
+    }
+
+    .swagger-ui .opblock .opblock-summary-method {
+      border-radius: 6px !important;
+      font-family: var(--font-mono) !important;
+      font-weight: 700 !important;
+      font-size: 12px !important;
+    }
+
+    .swagger-ui .opblock .opblock-summary-path {
+      color: #F8FAFC !important;
+      font-family: var(--font-mono) !important;
+      font-size: 13px !important;
+    }
+
+    .swagger-ui .opblock .opblock-summary-description {
+      color: #94A3B8 !important;
+      font-size: 12px !important;
+    }
+
+    .swagger-ui .opblock-body {
+      background: rgba(15, 23, 42, 0.6) !important;
+    }
+
+    .swagger-ui .tabli button {
+      color: #94A3B8 !important;
+    }
+
+    .swagger-ui .tabli.active button {
+      color: #06B6D4 !important;
+    }
+
+    .swagger-ui table thead tr th {
+      color: #E2E8F0 !important;
+      border-bottom: 1px solid #374151 !important;
+    }
+
+    .swagger-ui .parameters-col_name {
+      color: #06B6D4 !important;
+      font-family: var(--font-mono) !important;
+    }
+
+    .swagger-ui .parameter__name {
+      color: #F1F5F9 !important;
+    }
+
+    .swagger-ui .parameter__type {
+      color: #38BDF8 !important;
+      font-family: var(--font-mono) !important;
+    }
+
+    .swagger-ui .btn.authorize {
+      color: #10B981 !important;
+      border-color: #10B981 !important;
+      background: rgba(16, 185, 129, 0.1) !important;
+      border-radius: 8px !important;
+    }
+
+    .swagger-ui .btn.authorize svg {
+      fill: #10B981 !important;
+    }
+
+    .swagger-ui .btn.try-out__btn {
+      color: #06B6D4 !important;
+      border-color: #06B6D4 !important;
+      background: rgba(6, 182, 212, 0.1) !important;
+      border-radius: 6px !important;
+    }
+
+    .swagger-ui .btn.execute {
+      background-color: #06B6D4 !important;
+      border-color: #06B6D4 !important;
+      color: #0B0F17 !important;
+      font-weight: 700 !important;
+      border-radius: 6px !important;
+    }
+
+    .swagger-ui section.models {
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 10px !important;
+      background: rgba(15, 23, 42, 0.4) !important;
+    }
+
+    .swagger-ui section.models h4 {
+      color: #E2E8F0 !important;
+    }
+
+    .swagger-ui .model-box {
+      background: transparent !important;
+    }
+
+    .swagger-ui .model-title {
+      color: #06B6D4 !important;
+    }
+
+    .swagger-ui .prop-type {
+      color: #10B981 !important;
+    }
+
+    /* Filter search bar */
+    .swagger-ui .wrapper .filter-container {
+      padding: 16px 0 8px 0;
+    }
+
+    .swagger-ui .wrapper .filter-container .operation-filter-input {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: #FFFFFF;
+      padding: 10px 14px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .swagger-ui .wrapper .filter-container .operation-filter-input:focus {
+      border-color: var(--accent-cyan);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Sticky Navigation Bar -->
+  <header class="top-bar">
+    <div class="brand-section">
+      <div class="brand-logo">🛡️</div>
+      <div class="brand-info">
+        <h1>AI Robustness Defence Lab <span class="badge-openapi">OpenAPI 3.1</span></h1>
+        <span>Interactive REST API Documentation & Model Verification Hub</span>
+      </div>
+    </div>
+
+    <div class="controls-section">
+      <!-- Target Server Selector -->
+      <div class="server-select-wrap">
+        <label for="serverSelect">Target Server:</label>
+        <select id="serverSelect" class="server-select">
+          <option value="http://127.0.0.1:8000">Local Server (127.0.0.1:8000)</option>
+          <option value="https://ai-robustness-defence-lab.onrender.com">Render Cloud Backend (Production)</option>
+          <option value="">Current Origin (Auto)</option>
+        </select>
+      </div>
+
+      <!-- Mode Switcher: Swagger UI vs ReDoc -->
+      <div class="toggle-group">
+        <button id="btnSwagger" class="toggle-btn active" onclick="switchView('swagger')">Swagger UI (Playground)</button>
+        <button id="btnRedoc" class="toggle-btn" onclick="switchView('redoc')">ReDoc (Reference)</button>
+      </div>
+
+      <!-- External Links -->
+      <a href="openapi.json" download class="nav-btn btn-secondary" title="Download raw OpenAPI 3.1 JSON schema">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>openapi.json</span>
+      </a>
+
+      <a href="https://ai-robustness-defence-lab.vercel.app" class="nav-btn btn-primary" target="_blank" rel="noopener">
+        <span>Open Web App</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>
+
+      <a href="https://github.com/LALI20006/ai-robustness-defence-lab" class="nav-btn btn-secondary" target="_blank" rel="noopener" title="View Source on GitHub">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        <span>GitHub</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Swagger UI Mount Point -->
+  <main id="swagger-container"></main>
+
+  <!-- ReDoc Mount Point -->
+  <div id="redoc-container"></div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+  <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+
+  <script>
+    let currentSpec = null;
+    let ui = null;
+    let redocInitialized = false;
+
+    // Fetch OpenAPI specification
+    async function loadOpenAPISpec() {
+      try {
+        const res = await fetch('./openapi.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        currentSpec = await res.json();
+      } catch (err) {
+        console.warn('Could not load local ./openapi.json directly, falling back to embedded/remote url', err);
+      }
+      initSwagger();
+    }
+
+    function initSwagger() {
+      const serverUrl = document.getElementById('serverSelect').value;
+      const specClone = currentSpec ? JSON.parse(JSON.stringify(currentSpec)) : null;
+
+      if (specClone && serverUrl) {
+        specClone.servers = [{ url: serverUrl, description: 'Selected Target Environment' }];
+      }
+
+      ui = SwaggerUIBundle({
+        url: specClone ? undefined : './openapi.json',
+        spec: specClone || undefined,
+        dom_id: '#swagger-container',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        layout: "BaseLayout",
+        docExpansion: "list",
+        filter: true,
+        persistAuthorization: true,
+        displayRequestDuration: true,
+        showExtensions: true,
+        showCommonExtensions: true,
+        defaultModelsExpandDepth: 1,
+        defaultModelExpandDepth: 1
+      });
+    }
+
+    function switchView(view) {
+      const swaggerEl = document.getElementById('swagger-container');
+      const redocEl = document.getElementById('redoc-container');
+      const btnSwagger = document.getElementById('btnSwagger');
+      const btnRedoc = document.getElementById('btnRedoc');
+
+      if (view === 'swagger') {
+        swaggerEl.style.display = 'block';
+        redocEl.style.display = 'none';
+        btnSwagger.classList.add('active');
+        btnRedoc.classList.remove('active');
+      } else {
+        swaggerEl.style.display = 'none';
+        redocEl.style.display = 'block';
+        btnRedoc.classList.add('active');
+        btnSwagger.classList.remove('active');
+
+        if (!redocInitialized) {
+          Redoc.init(
+            currentSpec || './openapi.json',
+            {
+              theme: {
+                colors: { primary: { main: '#06B6D4' } },
+                typography: {
+                  fontFamily: "'Outfit', sans-serif",
+                  headings: { fontFamily: "'Outfit', sans-serif" },
+                  code: { fontFamily: "'JetBrains Mono', monospace" }
+                }
+              }
+            },
+            document.getElementById('redoc-container')
+          );
+          redocInitialized = true;
+        }
+      }
+    }
+
+    // Re-initialize swagger if server changes
+    document.getElementById('serverSelect').addEventListener('change', () => {
+      initSwagger();
+    });
+
+    window.onload = loadOpenAPISpec;
+  </script>
+</body>
+</html>

@@ -11,7 +11,8 @@ import {
   History,
   FileText,
   Settings,
-  Info
+  Info,
+  FileCode
 } from 'lucide-react';
 
 const navLinks = [
@@ -24,6 +25,7 @@ const navLinks = [
   { name: 'Compare Results', path: '/compare', icon: Scale },
   { name: 'Experiments', path: '/experiments', icon: History },
   { name: 'Reports', path: '/reports', icon: FileText },
+  { name: 'API Docs (Swagger)', path: '/docs', icon: FileCode, isExternal: true },
   { name: 'Settings', path: '/settings', icon: Settings },
   { name: 'About Lab', path: '/about', icon: Info },
 ];
@@ -39,6 +41,20 @@ export default function Sidebar() {
         <nav className="space-y-1">
           {navLinks.map((item) => {
             const Icon = item.icon;
+            if (item.isExternal) {
+              return (
+                <a
+                  key={item.path}
+                  href={item.path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-xs font-medium text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all group"
+                >
+                  <Icon className="w-4 h-4 text-slate-500 group-hover:text-cyan-400" />
+                  <span>{item.name}</span>
+                </a>
+              );
+            }
             return (
               <NavLink
                 key={item.path}

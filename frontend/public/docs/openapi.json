@@ -1,0 +1,3657 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Adversarial Robustness Evaluation & Defence Framework for AI-Based Malware and Intrusion Classifiers",
+    "description": "Defensive research and educational laboratory evaluating machine-learning malware and intrusion classifiers against controlled feature perturbations.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Register User",
+        "operationId": "register_user_api_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Login User",
+        "operationId": "login_user_api_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLogin"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get User Profile",
+        "operationId": "get_user_profile_api_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Reset Password",
+        "operationId": "reset_password_api_auth_reset_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordReset"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/datasets/upload": {
+      "post": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Upload Dataset",
+        "operationId": "upload_dataset_api_datasets_upload_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_dataset_api_datasets_upload_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/datasets/load-sample": {
+      "post": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Load Sample Dataset",
+        "operationId": "load_sample_dataset_api_datasets_load_sample_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sample_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "network",
+              "title": "Sample Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/datasets": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "List Datasets",
+        "operationId": "list_datasets_api_datasets_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DatasetOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Datasets Api Datasets Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/datasets/{dataset_id}": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Get Dataset",
+        "operationId": "get_dataset_api_datasets__dataset_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Delete Dataset",
+        "operationId": "delete_dataset_api_datasets__dataset_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/preview": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Get Dataset Preview",
+        "operationId": "get_dataset_preview_api_datasets__dataset_id__preview_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetPreview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/statistics": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Get Dataset Statistics",
+        "operationId": "get_dataset_statistics_api_datasets__dataset_id__statistics_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetStats"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/target": {
+      "post": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Select Target Column",
+        "operationId": "select_target_column_api_datasets__dataset_id__target_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TargetSelectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/preprocessing/run": {
+      "post": {
+        "tags": [
+          "Preprocessing"
+        ],
+        "summary": "Run Preprocessing",
+        "operationId": "run_preprocessing_api_preprocessing_run_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreprocessingCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreprocessingOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/preprocessing/{config_id}": {
+      "get": {
+        "tags": [
+          "Preprocessing"
+        ],
+        "summary": "Get Preprocessing Config",
+        "operationId": "get_preprocessing_config_api_preprocessing__config_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "config_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Config Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreprocessingOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/models/train": {
+      "post": {
+        "tags": [
+          "Model Training & Clean Evaluation"
+        ],
+        "summary": "Train Model",
+        "operationId": "train_model_api_models_train_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelTrainRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelDetailOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/models": {
+      "get": {
+        "tags": [
+          "Model Training & Clean Evaluation"
+        ],
+        "summary": "List Models",
+        "operationId": "list_models_api_models_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ModelOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Models Api Models Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/models/{model_id}": {
+      "get": {
+        "tags": [
+          "Model Training & Clean Evaluation"
+        ],
+        "summary": "Get Model",
+        "operationId": "get_model_api_models__model_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "model_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Model Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelDetailOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Model Training & Clean Evaluation"
+        ],
+        "summary": "Delete Model",
+        "operationId": "delete_model_api_models__model_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "model_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Model Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/robustness/run": {
+      "post": {
+        "tags": [
+          "Robustness Lab"
+        ],
+        "summary": "Run Robustness Test",
+        "operationId": "run_robustness_test_api_robustness_run_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RobustnessRunRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RobustnessResultOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/robustness/experiments/{experiment_id}": {
+      "get": {
+        "tags": [
+          "Robustness Lab"
+        ],
+        "summary": "Get Experiment",
+        "operationId": "get_experiment_api_robustness_experiments__experiment_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "experiment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Experiment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RobustnessResultOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Robustness Lab"
+        ],
+        "summary": "Delete Experiment",
+        "operationId": "delete_experiment_api_robustness_experiments__experiment_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "experiment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Experiment Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/defence/input-validation": {
+      "post": {
+        "tags": [
+          "Defence Lab"
+        ],
+        "summary": "Run Input Validation",
+        "operationId": "run_input_validation_api_defence_input_validation_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InputValidationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InputValidationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/defence/adversarial-training": {
+      "post": {
+        "tags": [
+          "Defence Lab"
+        ],
+        "summary": "Run Adversarial Training",
+        "operationId": "run_adversarial_training_api_defence_adversarial_training_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdversarialTrainingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdversarialTrainingOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/defence/ensemble": {
+      "post": {
+        "tags": [
+          "Defence Lab"
+        ],
+        "summary": "Run Ensemble Defense",
+        "operationId": "run_ensemble_defense_api_defence_ensemble_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnsembleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnsembleOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/comparison/models": {
+      "get": {
+        "tags": [
+          "Model & Experiment Comparison"
+        ],
+        "summary": "Compare Models",
+        "operationId": "compare_models_api_comparison_models_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelComparisonOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/comparison/experiments": {
+      "get": {
+        "tags": [
+          "Model & Experiment Comparison"
+        ],
+        "summary": "Compare Experiments",
+        "operationId": "compare_experiments_api_comparison_experiments_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentComparisonOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/reports/generate/{experiment_id}": {
+      "post": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Generate Report",
+        "operationId": "generate_report_api_reports_generate__experiment_id__post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "experiment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Experiment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportGenerateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "List Reports",
+        "operationId": "list_reports_api_reports_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ReportOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Reports Api Reports Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/reports/{report_id}/download": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Download Report",
+        "operationId": "download_report_api_reports__report_id__download_get",
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Report Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/{report_id}/view": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "View Html Report",
+        "operationId": "view_html_report_api_reports__report_id__view_get",
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Report Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dashboard/summary": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Get Dashboard Summary",
+        "operationId": "get_dashboard_summary_api_dashboard_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSummaryOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/demo/run": {
+      "post": {
+        "tags": [
+          "Demo Pipeline"
+        ],
+        "summary": "Run Demo",
+        "description": "Executes full end-to-end academic demo workflow.",
+        "operationId": "run_demo_api_demo_run_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "description": "Unauthenticated health check for deployment orchestration (Render, Kubernetes, etc.)",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Api Health",
+        "description": "API-namespaced health check",
+        "operationId": "api_health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/favicon.svg": {
+      "get": {
+        "summary": "Favicon",
+        "operationId": "favicon_favicon_svg_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/icons.svg": {
+      "get": {
+        "summary": "Icons",
+        "operationId": "icons_icons_svg_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Read Root",
+        "operationId": "read_root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{full_path}": {
+      "get": {
+        "summary": "Serve Spa",
+        "operationId": "serve_spa__full_path__get",
+        "parameters": [
+          {
+            "name": "full_path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Full Path"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ActivityItem": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "action",
+          "description",
+          "timestamp",
+          "status"
+        ],
+        "title": "ActivityItem"
+      },
+      "AdversarialTrainingOut": {
+        "properties": {
+          "experiment_id": {
+            "type": "integer",
+            "title": "Experiment Id"
+          },
+          "defended_model_id": {
+            "type": "integer",
+            "title": "Defended Model Id"
+          },
+          "defended_model_name": {
+            "type": "string",
+            "title": "Defended Model Name"
+          },
+          "original_model_id": {
+            "type": "integer",
+            "title": "Original Model Id"
+          },
+          "augmentation_ratio": {
+            "type": "number",
+            "title": "Augmentation Ratio"
+          },
+          "perturbation_strength": {
+            "type": "number",
+            "title": "Perturbation Strength"
+          },
+          "original_clean_accuracy": {
+            "type": "number",
+            "title": "Original Clean Accuracy"
+          },
+          "original_robust_accuracy": {
+            "type": "number",
+            "title": "Original Robust Accuracy"
+          },
+          "original_attack_success_rate": {
+            "type": "number",
+            "title": "Original Attack Success Rate"
+          },
+          "defended_clean_accuracy": {
+            "type": "number",
+            "title": "Defended Clean Accuracy"
+          },
+          "defended_robust_accuracy": {
+            "type": "number",
+            "title": "Defended Robust Accuracy"
+          },
+          "defended_attack_success_rate": {
+            "type": "number",
+            "title": "Defended Attack Success Rate"
+          },
+          "robustness_improvement": {
+            "type": "number",
+            "title": "Robustness Improvement"
+          },
+          "attack_reduction": {
+            "type": "number",
+            "title": "Attack Reduction"
+          },
+          "confusion_matrix_before": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Confusion Matrix Before"
+          },
+          "confusion_matrix_after": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Confusion Matrix After"
+          },
+          "classes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Classes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "experiment_id",
+          "defended_model_id",
+          "defended_model_name",
+          "original_model_id",
+          "augmentation_ratio",
+          "perturbation_strength",
+          "original_clean_accuracy",
+          "original_robust_accuracy",
+          "original_attack_success_rate",
+          "defended_clean_accuracy",
+          "defended_robust_accuracy",
+          "defended_attack_success_rate",
+          "robustness_improvement",
+          "attack_reduction",
+          "confusion_matrix_before",
+          "confusion_matrix_after",
+          "classes"
+        ],
+        "title": "AdversarialTrainingOut"
+      },
+      "AdversarialTrainingRequest": {
+        "properties": {
+          "model_id": {
+            "type": "integer",
+            "title": "Model Id"
+          },
+          "augmentation_ratio": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.05,
+            "title": "Augmentation Ratio",
+            "default": 0.25
+          },
+          "perturbation_method": {
+            "type": "string",
+            "title": "Perturbation Method",
+            "default": "bounded_perturbation"
+          },
+          "perturbation_strength": {
+            "type": "number",
+            "maximum": 0.2,
+            "minimum": 0.01,
+            "title": "Perturbation Strength",
+            "default": 0.05
+          },
+          "random_seed": {
+            "type": "integer",
+            "title": "Random Seed",
+            "default": 42
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_id"
+        ],
+        "title": "AdversarialTrainingRequest"
+      },
+      "Body_upload_dataset_api_datasets_upload_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          },
+          "dataset_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Name"
+          },
+          "target_column": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Column"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_dataset_api_datasets_upload_post"
+      },
+      "ColumnStat": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "dtype": {
+            "type": "string",
+            "title": "Dtype"
+          },
+          "missing_count": {
+            "type": "integer",
+            "title": "Missing Count"
+          },
+          "missing_pct": {
+            "type": "number",
+            "title": "Missing Pct"
+          },
+          "unique_count": {
+            "type": "integer",
+            "title": "Unique Count"
+          },
+          "mean": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean"
+          },
+          "std": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Std"
+          },
+          "min": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min"
+          },
+          "max": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max"
+          },
+          "sample_values": {
+            "items": {},
+            "type": "array",
+            "title": "Sample Values",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "dtype",
+          "missing_count",
+          "missing_pct",
+          "unique_count"
+        ],
+        "title": "ColumnStat"
+      },
+      "DashboardSummaryOut": {
+        "properties": {
+          "total_datasets": {
+            "type": "integer",
+            "title": "Total Datasets"
+          },
+          "total_models": {
+            "type": "integer",
+            "title": "Total Models"
+          },
+          "total_experiments": {
+            "type": "integer",
+            "title": "Total Experiments"
+          },
+          "best_clean_accuracy": {
+            "type": "number",
+            "title": "Best Clean Accuracy"
+          },
+          "best_robust_accuracy": {
+            "type": "number",
+            "title": "Best Robust Accuracy"
+          },
+          "latest_experiment": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Experiment"
+          },
+          "recent_experiments": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Recent Experiments",
+            "default": []
+          },
+          "model_robustness_overview": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Model Robustness Overview",
+            "default": []
+          },
+          "recent_activity": {
+            "items": {
+              "$ref": "#/components/schemas/ActivityItem"
+            },
+            "type": "array",
+            "title": "Recent Activity",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_datasets",
+          "total_models",
+          "total_experiments",
+          "best_clean_accuracy",
+          "best_robust_accuracy"
+        ],
+        "title": "DashboardSummaryOut"
+      },
+      "DatasetOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "dataset_type": {
+            "type": "string",
+            "title": "Dataset Type"
+          },
+          "target_column": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Column"
+          },
+          "rows_count": {
+            "type": "integer",
+            "title": "Rows Count"
+          },
+          "columns_count": {
+            "type": "integer",
+            "title": "Columns Count"
+          },
+          "classes": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Classes"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "dataset_type",
+          "rows_count",
+          "columns_count",
+          "created_at"
+        ],
+        "title": "DatasetOut"
+      },
+      "DatasetPreview": {
+        "properties": {
+          "dataset_id": {
+            "type": "integer",
+            "title": "Dataset Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "total_rows": {
+            "type": "integer",
+            "title": "Total Rows"
+          },
+          "total_columns": {
+            "type": "integer",
+            "title": "Total Columns"
+          },
+          "columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Columns"
+          },
+          "target_column": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Column"
+          },
+          "data": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "column_types": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Column Types"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "name",
+          "total_rows",
+          "total_columns",
+          "columns",
+          "target_column",
+          "data",
+          "column_types"
+        ],
+        "title": "DatasetPreview"
+      },
+      "DatasetStats": {
+        "properties": {
+          "dataset_id": {
+            "type": "integer",
+            "title": "Dataset Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "total_rows": {
+            "type": "integer",
+            "title": "Total Rows"
+          },
+          "total_columns": {
+            "type": "integer",
+            "title": "Total Columns"
+          },
+          "numeric_columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Numeric Columns"
+          },
+          "categorical_columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Categorical Columns"
+          },
+          "target_column": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Column"
+          },
+          "class_distribution": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Class Distribution"
+          },
+          "columns_stats": {
+            "items": {
+              "$ref": "#/components/schemas/ColumnStat"
+            },
+            "type": "array",
+            "title": "Columns Stats"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "name",
+          "total_rows",
+          "total_columns",
+          "numeric_columns",
+          "categorical_columns",
+          "target_column",
+          "class_distribution",
+          "columns_stats"
+        ],
+        "title": "DatasetStats"
+      },
+      "EnsembleOut": {
+        "properties": {
+          "defended_model_id": {
+            "type": "integer",
+            "title": "Defended Model Id"
+          },
+          "ensemble_name": {
+            "type": "string",
+            "title": "Ensemble Name"
+          },
+          "component_models": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Component Models"
+          },
+          "clean_accuracy": {
+            "type": "number",
+            "title": "Clean Accuracy"
+          },
+          "robust_accuracy": {
+            "type": "number",
+            "title": "Robust Accuracy"
+          },
+          "attack_success_rate": {
+            "type": "number",
+            "title": "Attack Success Rate"
+          },
+          "robustness_improvement": {
+            "type": "number",
+            "title": "Robustness Improvement"
+          },
+          "attack_reduction": {
+            "type": "number",
+            "title": "Attack Reduction"
+          }
+        },
+        "type": "object",
+        "required": [
+          "defended_model_id",
+          "ensemble_name",
+          "component_models",
+          "clean_accuracy",
+          "robust_accuracy",
+          "attack_success_rate",
+          "robustness_improvement",
+          "attack_reduction"
+        ],
+        "title": "EnsembleOut"
+      },
+      "EnsembleRequest": {
+        "properties": {
+          "model_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Model Ids"
+          },
+          "voting": {
+            "type": "string",
+            "title": "Voting",
+            "description": "soft or hard",
+            "default": "soft"
+          },
+          "ensemble_name": {
+            "type": "string",
+            "title": "Ensemble Name",
+            "default": "Ensemble_Defender"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_ids"
+        ],
+        "title": "EnsembleRequest"
+      },
+      "ExperimentComparisonItem": {
+        "properties": {
+          "experiment_id": {
+            "type": "integer",
+            "title": "Experiment Id"
+          },
+          "model_name": {
+            "type": "string",
+            "title": "Model Name"
+          },
+          "dataset_name": {
+            "type": "string",
+            "title": "Dataset Name"
+          },
+          "perturbation_method": {
+            "type": "string",
+            "title": "Perturbation Method"
+          },
+          "perturbation_strength": {
+            "type": "number",
+            "title": "Perturbation Strength"
+          },
+          "defence_method": {
+            "type": "string",
+            "title": "Defence Method"
+          },
+          "clean_accuracy": {
+            "type": "number",
+            "title": "Clean Accuracy"
+          },
+          "robust_accuracy": {
+            "type": "number",
+            "title": "Robust Accuracy"
+          },
+          "accuracy_drop": {
+            "type": "number",
+            "title": "Accuracy Drop"
+          },
+          "attack_success_rate": {
+            "type": "number",
+            "title": "Attack Success Rate"
+          },
+          "prediction_flip_rate": {
+            "type": "number",
+            "title": "Prediction Flip Rate"
+          },
+          "defended_robust_accuracy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defended Robust Accuracy"
+          },
+          "robustness_improvement": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Robustness Improvement"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "experiment_id",
+          "model_name",
+          "dataset_name",
+          "perturbation_method",
+          "perturbation_strength",
+          "defence_method",
+          "clean_accuracy",
+          "robust_accuracy",
+          "accuracy_drop",
+          "attack_success_rate",
+          "prediction_flip_rate",
+          "created_at"
+        ],
+        "title": "ExperimentComparisonItem"
+      },
+      "ExperimentComparisonOut": {
+        "properties": {
+          "experiments": {
+            "items": {
+              "$ref": "#/components/schemas/ExperimentComparisonItem"
+            },
+            "type": "array",
+            "title": "Experiments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "experiments"
+        ],
+        "title": "ExperimentComparisonOut"
+      },
+      "FeatureSensitivityItem": {
+        "properties": {
+          "feature_name": {
+            "type": "string",
+            "title": "Feature Name"
+          },
+          "impact_drop": {
+            "type": "number",
+            "title": "Impact Drop"
+          },
+          "accuracy_without_feature": {
+            "type": "number",
+            "title": "Accuracy Without Feature"
+          }
+        },
+        "type": "object",
+        "required": [
+          "feature_name",
+          "impact_drop",
+          "accuracy_without_feature"
+        ],
+        "title": "FeatureSensitivityItem"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InputValidationOut": {
+        "properties": {
+          "model_id": {
+            "type": "integer",
+            "title": "Model Id"
+          },
+          "total_samples": {
+            "type": "integer",
+            "title": "Total Samples"
+          },
+          "valid_count": {
+            "type": "integer",
+            "title": "Valid Count"
+          },
+          "warning_count": {
+            "type": "integer",
+            "title": "Warning Count"
+          },
+          "rejected_count": {
+            "type": "integer",
+            "title": "Rejected Count"
+          },
+          "validation_rate": {
+            "type": "number",
+            "title": "Validation Rate"
+          },
+          "rejection_rate": {
+            "type": "number",
+            "title": "Rejection Rate"
+          },
+          "details": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationSampleResult"
+            },
+            "type": "array",
+            "title": "Details"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_id",
+          "total_samples",
+          "valid_count",
+          "warning_count",
+          "rejected_count",
+          "validation_rate",
+          "rejection_rate",
+          "details"
+        ],
+        "title": "InputValidationOut"
+      },
+      "InputValidationRequest": {
+        "properties": {
+          "model_id": {
+            "type": "integer",
+            "title": "Model Id"
+          },
+          "outlier_method": {
+            "type": "string",
+            "title": "Outlier Method",
+            "description": "iqr or zscore",
+            "default": "iqr"
+          },
+          "strict_bounds": {
+            "type": "boolean",
+            "title": "Strict Bounds",
+            "default": true
+          },
+          "reject_nans": {
+            "type": "boolean",
+            "title": "Reject Nans",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_id"
+        ],
+        "title": "InputValidationRequest"
+      },
+      "MetricDetails": {
+        "properties": {
+          "accuracy": {
+            "type": "number",
+            "title": "Accuracy"
+          },
+          "precision": {
+            "type": "number",
+            "title": "Precision"
+          },
+          "recall": {
+            "type": "number",
+            "title": "Recall"
+          },
+          "f1_score": {
+            "type": "number",
+            "title": "F1 Score"
+          },
+          "roc_auc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roc Auc"
+          },
+          "fpr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fpr"
+          },
+          "fnr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fnr"
+          },
+          "confusion_matrix": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Confusion Matrix"
+          },
+          "classes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Classes"
+          },
+          "training_duration": {
+            "type": "number",
+            "title": "Training Duration"
+          },
+          "roc_curve": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roc Curve"
+          },
+          "confidence_distribution": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Distribution"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accuracy",
+          "precision",
+          "recall",
+          "f1_score",
+          "confusion_matrix",
+          "classes",
+          "training_duration"
+        ],
+        "title": "MetricDetails"
+      },
+      "ModelComparisonItem": {
+        "properties": {
+          "model_id": {
+            "type": "integer",
+            "title": "Model Id"
+          },
+          "model_name": {
+            "type": "string",
+            "title": "Model Name"
+          },
+          "algorithm": {
+            "type": "string",
+            "title": "Algorithm"
+          },
+          "dataset_name": {
+            "type": "string",
+            "title": "Dataset Name"
+          },
+          "clean_accuracy": {
+            "type": "number",
+            "title": "Clean Accuracy"
+          },
+          "robust_accuracy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Robust Accuracy"
+          },
+          "accuracy_drop": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accuracy Drop"
+          },
+          "precision": {
+            "type": "number",
+            "title": "Precision"
+          },
+          "recall": {
+            "type": "number",
+            "title": "Recall"
+          },
+          "f1_score": {
+            "type": "number",
+            "title": "F1 Score"
+          },
+          "roc_auc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roc Auc"
+          },
+          "attack_success_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attack Success Rate"
+          },
+          "defended_robust_accuracy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defended Robust Accuracy"
+          },
+          "training_duration": {
+            "type": "number",
+            "title": "Training Duration"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_id",
+          "model_name",
+          "algorithm",
+          "dataset_name",
+          "clean_accuracy",
+          "precision",
+          "recall",
+          "f1_score",
+          "training_duration"
+        ],
+        "title": "ModelComparisonItem"
+      },
+      "ModelComparisonOut": {
+        "properties": {
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/ModelComparisonItem"
+            },
+            "type": "array",
+            "title": "Models"
+          },
+          "best_clean_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best Clean Model"
+          },
+          "best_robust_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best Robust Model"
+          },
+          "best_defended_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best Defended Model"
+          }
+        },
+        "type": "object",
+        "required": [
+          "models"
+        ],
+        "title": "ModelComparisonOut"
+      },
+      "ModelDetailOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "integer",
+            "title": "User Id"
+          },
+          "dataset_id": {
+            "type": "integer",
+            "title": "Dataset Id"
+          },
+          "preprocessing_id": {
+            "type": "integer",
+            "title": "Preprocessing Id"
+          },
+          "model_name": {
+            "type": "string",
+            "title": "Model Name"
+          },
+          "algorithm": {
+            "type": "string",
+            "title": "Algorithm"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Parameters"
+          },
+          "clean_accuracy": {
+            "type": "number",
+            "title": "Clean Accuracy"
+          },
+          "precision": {
+            "type": "number",
+            "title": "Precision"
+          },
+          "recall": {
+            "type": "number",
+            "title": "Recall"
+          },
+          "f1_score": {
+            "type": "number",
+            "title": "F1 Score"
+          },
+          "roc_auc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roc Auc"
+          },
+          "fpr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fpr"
+          },
+          "fnr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fnr"
+          },
+          "training_duration": {
+            "type": "number",
+            "title": "Training Duration"
+          },
+          "feature_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Feature Names"
+          },
+          "target_classes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Target Classes"
+          },
+          "confusion_matrix": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Confusion Matrix"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/MetricDetails"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "dataset_id",
+          "preprocessing_id",
+          "model_name",
+          "algorithm",
+          "parameters",
+          "clean_accuracy",
+          "precision",
+          "recall",
+          "f1_score",
+          "training_duration",
+          "feature_names",
+          "target_classes",
+          "confusion_matrix",
+          "created_at",
+          "metrics"
+        ],
+        "title": "ModelDetailOut"
+      },
+      "ModelOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "integer",
+            "title": "User Id"
+          },
+          "dataset_id": {
+            "type": "integer",
+            "title": "Dataset Id"
+          },
+          "preprocessing_id": {
+            "type": "integer",
+            "title": "Preprocessing Id"
+          },
+          "model_name": {
+            "type": "string",
+            "title": "Model Name"
+          },
+          "algorithm": {
+            "type": "string",
+            "title": "Algorithm"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Parameters"
+          },
+          "clean_accuracy": {
+            "type": "number",
+            "title": "Clean Accuracy"
+          },
+          "precision": {
+            "type": "number",
+            "title": "Precision"
+          },
+          "recall": {
+            "type": "number",
+            "title": "Recall"
+          },
+          "f1_score": {
+            "type": "number",
+            "title": "F1 Score"
+          },
+          "roc_auc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roc Auc"
+          },
+          "fpr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fpr"
+          },
+          "fnr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fnr"
+          },
+          "training_duration": {
+            "type": "number",
+            "title": "Training Duration"
+          },
+          "feature_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Feature Names"
+          },
+          "target_classes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Target Classes"
+          },
+          "confusion_matrix": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Confusion Matrix"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "dataset_id",
+          "preprocessing_id",
+          "model_name",
+          "algorithm",
+          "parameters",
+          "clean_accuracy",
+          "precision",
+          "recall",
+          "f1_score",
+          "training_duration",
+          "feature_names",
+          "target_classes",
+          "confusion_matrix",
+          "created_at"
+        ],
+        "title": "ModelOut"
+      },
+      "ModelTrainRequest": {
+        "properties": {
+          "dataset_id": {
+            "type": "integer",
+            "title": "Dataset Id"
+          },
+          "preprocessing_id": {
+            "type": "integer",
+            "title": "Preprocessing Id"
+          },
+          "model_name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Model Name"
+          },
+          "algorithm": {
+            "type": "string",
+            "title": "Algorithm",
+            "description": "logistic_regression, decision_tree, random_forest, svm, knn, gradient_boosting, mlp"
+          },
+          "parameters": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parameters"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "preprocessing_id",
+          "model_name",
+          "algorithm"
+        ],
+        "title": "ModelTrainRequest"
+      },
+      "PasswordReset": {
+        "properties": {
+          "email_or_username": {
+            "type": "string",
+            "title": "Email Or Username"
+          },
+          "new_password": {
+            "type": "string",
+            "minLength": 8,
+            "title": "New Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email_or_username",
+          "new_password"
+        ],
+        "title": "PasswordReset"
+      },
+      "PreprocessingCreate": {
+        "properties": {
+          "dataset_id": {
+            "type": "integer",
+            "title": "Dataset Id"
+          },
+          "missing_value_strategy": {
+            "type": "string",
+            "title": "Missing Value Strategy",
+            "description": "mean, median, drop, mode",
+            "default": "mean"
+          },
+          "encoding_method": {
+            "type": "string",
+            "title": "Encoding Method",
+            "description": "onehot, label",
+            "default": "onehot"
+          },
+          "scaling_method": {
+            "type": "string",
+            "title": "Scaling Method",
+            "description": "standard, minmax, robust, none",
+            "default": "standard"
+          },
+          "feature_selection_method": {
+            "type": "string",
+            "title": "Feature Selection Method",
+            "description": "all, variance, selectkbest, manual",
+            "default": "all"
+          },
+          "selected_features": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Features"
+          },
+          "k_best": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "K Best",
+            "default": 10
+          },
+          "variance_threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variance Threshold",
+            "default": 0.01
+          },
+          "test_size": {
+            "type": "number",
+            "maximum": 0.5,
+            "minimum": 0.1,
+            "title": "Test Size",
+            "default": 0.2
+          },
+          "random_seed": {
+            "type": "integer",
+            "title": "Random Seed",
+            "default": 42
+          }
+        },
+        "type": "object",
+        "required": [
+          "dataset_id"
+        ],
+        "title": "PreprocessingCreate"
+      },
+      "PreprocessingOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "dataset_id": {
+            "type": "integer",
+            "title": "Dataset Id"
+          },
+          "missing_value_strategy": {
+            "type": "string",
+            "title": "Missing Value Strategy"
+          },
+          "encoding_method": {
+            "type": "string",
+            "title": "Encoding Method"
+          },
+          "scaling_method": {
+            "type": "string",
+            "title": "Scaling Method"
+          },
+          "feature_selection_method": {
+            "type": "string",
+            "title": "Feature Selection Method"
+          },
+          "test_size": {
+            "type": "number",
+            "title": "Test Size"
+          },
+          "random_seed": {
+            "type": "integer",
+            "title": "Random Seed"
+          },
+          "train_rows": {
+            "type": "integer",
+            "title": "Train Rows"
+          },
+          "test_rows": {
+            "type": "integer",
+            "title": "Test Rows"
+          },
+          "original_features_count": {
+            "type": "integer",
+            "title": "Original Features Count"
+          },
+          "processed_features_count": {
+            "type": "integer",
+            "title": "Processed Features Count"
+          },
+          "selected_features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Selected Features"
+          },
+          "target_classes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Target Classes"
+          },
+          "target_distribution": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Target Distribution"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "dataset_id",
+          "missing_value_strategy",
+          "encoding_method",
+          "scaling_method",
+          "feature_selection_method",
+          "test_size",
+          "random_seed",
+          "train_rows",
+          "test_rows",
+          "original_features_count",
+          "processed_features_count",
+          "selected_features",
+          "target_classes",
+          "target_distribution",
+          "created_at"
+        ],
+        "title": "PreprocessingOut"
+      },
+      "ReportGenerateRequest": {
+        "properties": {
+          "experiment_id": {
+            "type": "integer",
+            "title": "Experiment Id"
+          },
+          "format": {
+            "type": "string",
+            "title": "Format",
+            "default": "pdf"
+          },
+          "custom_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "experiment_id"
+        ],
+        "title": "ReportGenerateRequest"
+      },
+      "ReportOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "experiment_id": {
+            "type": "integer",
+            "title": "Experiment Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "format": {
+            "type": "string",
+            "title": "Format"
+          },
+          "report_path": {
+            "type": "string",
+            "title": "Report Path"
+          },
+          "download_url": {
+            "type": "string",
+            "title": "Download Url"
+          },
+          "conclusion": {
+            "type": "string",
+            "title": "Conclusion"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "experiment_id",
+          "title",
+          "format",
+          "report_path",
+          "download_url",
+          "conclusion",
+          "created_at"
+        ],
+        "title": "ReportOut"
+      },
+      "RobustnessResultOut": {
+        "properties": {
+          "experiment_id": {
+            "type": "integer",
+            "title": "Experiment Id"
+          },
+          "model_id": {
+            "type": "integer",
+            "title": "Model Id"
+          },
+          "model_name": {
+            "type": "string",
+            "title": "Model Name"
+          },
+          "algorithm": {
+            "type": "string",
+            "title": "Algorithm"
+          },
+          "dataset_name": {
+            "type": "string",
+            "title": "Dataset Name"
+          },
+          "perturbation_method": {
+            "type": "string",
+            "title": "Perturbation Method"
+          },
+          "perturbation_strength": {
+            "type": "number",
+            "title": "Perturbation Strength"
+          },
+          "clean_accuracy": {
+            "type": "number",
+            "title": "Clean Accuracy"
+          },
+          "robust_accuracy": {
+            "type": "number",
+            "title": "Robust Accuracy"
+          },
+          "accuracy_drop": {
+            "type": "number",
+            "title": "Accuracy Drop"
+          },
+          "relative_accuracy_drop": {
+            "type": "number",
+            "title": "Relative Accuracy Drop"
+          },
+          "attack_success_rate": {
+            "type": "number",
+            "title": "Attack Success Rate"
+          },
+          "prediction_flip_rate": {
+            "type": "number",
+            "title": "Prediction Flip Rate"
+          },
+          "confidence_drop": {
+            "type": "number",
+            "title": "Confidence Drop"
+          },
+          "confusion_matrix_clean": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Confusion Matrix Clean"
+          },
+          "confusion_matrix_perturbed": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Confusion Matrix Perturbed"
+          },
+          "classes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Classes"
+          },
+          "sample_results": {
+            "items": {
+              "$ref": "#/components/schemas/SampleResultOut"
+            },
+            "type": "array",
+            "title": "Sample Results"
+          },
+          "strength_sweep": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strength Sweep"
+          },
+          "feature_sensitivity": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FeatureSensitivityItem"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feature Sensitivity"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "experiment_id",
+          "model_id",
+          "model_name",
+          "algorithm",
+          "dataset_name",
+          "perturbation_method",
+          "perturbation_strength",
+          "clean_accuracy",
+          "robust_accuracy",
+          "accuracy_drop",
+          "relative_accuracy_drop",
+          "attack_success_rate",
+          "prediction_flip_rate",
+          "confidence_drop",
+          "confusion_matrix_clean",
+          "confusion_matrix_perturbed",
+          "classes",
+          "sample_results",
+          "created_at"
+        ],
+        "title": "RobustnessResultOut"
+      },
+      "RobustnessRunRequest": {
+        "properties": {
+          "model_id": {
+            "type": "integer",
+            "title": "Model Id"
+          },
+          "perturbation_method": {
+            "type": "string",
+            "title": "Perturbation Method",
+            "description": "random_noise, gaussian_noise, bounded_perturbation, feature_masking, feature_dropout"
+          },
+          "perturbation_strength": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.001,
+            "title": "Perturbation Strength",
+            "default": 0.05
+          },
+          "features_to_mask": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Features To Mask"
+          },
+          "mask_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mask Count",
+            "default": 3
+          },
+          "mask_replacement": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mask Replacement",
+            "default": "median"
+          },
+          "random_seed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Random Seed",
+            "default": 42
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_id",
+          "perturbation_method"
+        ],
+        "title": "RobustnessRunRequest"
+      },
+      "SampleResultOut": {
+        "properties": {
+          "sample_index": {
+            "type": "integer",
+            "title": "Sample Index"
+          },
+          "true_label": {
+            "type": "string",
+            "title": "True Label"
+          },
+          "clean_prediction": {
+            "type": "string",
+            "title": "Clean Prediction"
+          },
+          "perturbed_prediction": {
+            "type": "string",
+            "title": "Perturbed Prediction"
+          },
+          "clean_confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clean Confidence"
+          },
+          "perturbed_confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Perturbed Confidence"
+          },
+          "prediction_changed": {
+            "type": "boolean",
+            "title": "Prediction Changed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sample_index",
+          "true_label",
+          "clean_prediction",
+          "perturbed_prediction",
+          "clean_confidence",
+          "perturbed_confidence",
+          "prediction_changed"
+        ],
+        "title": "SampleResultOut"
+      },
+      "TargetSelectRequest": {
+        "properties": {
+          "target_column": {
+            "type": "string",
+            "title": "Target Column"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_column"
+        ],
+        "title": "TargetSelectRequest"
+      },
+      "Token": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "token_type",
+          "user"
+        ],
+        "title": "Token"
+      },
+      "UserCreate": {
+        "properties": {
+          "full_name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 2,
+            "title": "Full Name"
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 3,
+            "title": "Username"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "title": "Password"
+          },
+          "confirm_password": {
+            "type": "string",
+            "title": "Confirm Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "full_name",
+          "username",
+          "email",
+          "password",
+          "confirm_password"
+        ],
+        "title": "UserCreate"
+      },
+      "UserLogin": {
+        "properties": {
+          "username_or_email": {
+            "type": "string",
+            "title": "Username Or Email"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username_or_email",
+          "password"
+        ],
+        "title": "UserLogin"
+      },
+      "UserOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "full_name",
+          "username",
+          "email",
+          "created_at"
+        ],
+        "title": "UserOut"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "ValidationSampleResult": {
+        "properties": {
+          "sample_index": {
+            "type": "integer",
+            "title": "Sample Index"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sample_index",
+          "status",
+          "reasons"
+        ],
+        "title": "ValidationSampleResult"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2PasswordBearer": {
+        "type": "oauth2",
+        "flows": {
+          "password": {
+            "scopes": {},
+            "tokenUrl": "/api/auth/login"
+          }
+        }
+      }
+    }
+  }
+}

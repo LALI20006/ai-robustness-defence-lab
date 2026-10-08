@@ -1,7 +1,19 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/docs",
+      "destination": "/docs/index.html"
+    },
+    {
+      "source": "/docs/",
+      "destination": "/docs/index.html"
+    },
+    {
+      "source": "/docs/:match*",
+      "destination": "/docs/:match*"
+    },
+    {
+      "source": "/((?!docs|assets|favicon.svg|icons.svg).*)",
       "destination": "/index.html"
     }
   ],
