@@ -7,9 +7,7 @@ A hands-on machine learning security lab built to evaluate how well malware and 
 ## 🌐 Live Deployments & Documentation
 
 * 🚀 **Web Application (React 19):** [https://ai-robustness-defence-lab.vercel.app](https://ai-robustness-defence-lab.vercel.app)
-* 📖 **Interactive API Documentation Hub (Swagger UI & ReDoc):** [https://lali20006.github.io/ai-robustness-defence-lab/](https://lali20006.github.io/ai-robustness-defence-lab/) *(Mirror: [https://ai-robustness-defence-lab.vercel.app/docs](https://ai-robustness-defence-lab.vercel.app/docs))*
-* 📄 **Local Interactive API Explorer (Swagger UI):** [http://localhost:8000/docs](http://localhost:8000/docs)
-* 📑 **Local API Schema Reference (ReDoc):** [http://localhost:8000/redoc](http://localhost:8000/redoc)
+* 📄 **Interactive API Documentation (Swagger UI):** [https://ai-robustness-defence-lab.vercel.app/docs](https://ai-robustness-defence-lab.vercel.app/docs)
 * 📦 **GitHub Repository:** [https://github.com/LALI20006/ai-robustness-defence-lab](https://github.com/LALI20006/ai-robustness-defence-lab)
 
 ---
